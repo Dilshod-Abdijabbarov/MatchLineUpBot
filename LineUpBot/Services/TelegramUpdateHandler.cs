@@ -5,6 +5,7 @@ using LineUpBot.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -130,10 +131,11 @@ namespace LineUpBot.Services
         {
             try
             {
-                await _botClient.AnswerCallbackQuery(callback.Id);
-
                 if (callback.Message == null || string.IsNullOrEmpty(callback.Data))
+                {
+                    await _botClient.AnswerCallbackQuery(callback.Id);
                     return;
+                }
 
                 var chatId = callback.Message.Chat.Id;
                 var userId = callback.From.Id;
@@ -141,9 +143,17 @@ namespace LineUpBot.Services
                 var parts = callback.Data.Split(':');
                 var action = parts[0];
 
+                await _botClient.AnswerCallbackQuery(
+                    callback.Id,
+                    text: "⏳",
+                    showAlert: false
+                );
+
                 int? surveyId = null;
                 if (parts.Length > 1 && int.TryParse(parts[1], out var id))
                     surveyId = id;
+
+                await _botClient.AnswerCallbackQuery(callback.Id);
 
                 switch (action)
                 {
@@ -234,35 +244,95 @@ namespace LineUpBot.Services
 
         private async Task HandlePollVote( CallbackQuery callback, int surveyId,  bool isGoing)
         {
-            var chatId = callback.Message.Chat.Id;
-            var messageId = callback.Message.MessageId;
-            var user = await _userService.GetOrCreateOrUpdateAsync(callback.From);
+            try
+            {
+                var chatId = callback.Message.Chat.Id;
+                var survey = await _dbContext.Surveys.FindAsync(surveyId);
 
-            var groupId = await _groupService.CreateGroup(surveyId);
-            await _groupService.AddUserToGroup(user.ChatId, groupId,isGoing);
-            var users = await _userService.GetUsersByGroupIdAsync(groupId);
+                if (survey == null) return;
 
-            //var userName = string.Empty;
-            //int number = 1;
-            //foreach (var u in users)
-            //{
-            //    userName += $"{number} {u?.FirstName} (@{u?.UserName})\n";
-            //    number++;
-            //}
+                var user = await _userService.GetOrCreateOrUpdateAsync(callback.From);
+                var groupId = await _groupService.CreateGroup(surveyId);
+                await _groupService.AddUserToGroup(user.ChatId, groupId, isGoing);
+                var users = await _userService.GetUsersByGroupIdAsync(groupId);
 
-            await _botClient.EditMessageText(
-                        chatId: chatId,
-                        messageId: messageId,
-                        text: BuildPollText(users),
-                        parseMode: ParseMode.Markdown,
-                        replyMarkup: callback.Message.ReplyMarkup
-            );
+                // HTML formatda text tayyorlash
+                var pollText = BuildPollTextHtml(users);
 
-            await _botClient.AnswerCallbackQuery(callback.Id);
+                await _botClient.EditMessageText(
+                    chatId: chatId,
+                    messageId: survey.MessageId ?? 0,
+                    text: pollText,
+                    parseMode: ParseMode.Html, // HTML format ishlatamiz
+                    replyMarkup: callback.Message.ReplyMarkup
+                );
+            }
+            catch (ApiRequestException ex)
+            {
+                if (!ex.Message.Contains("too old") && !ex.Message.Contains("not modified"))
+                {
+                    throw;
+                }
+                // Eskirgan yoki o'zgartirilmagan xabarlar uchun ignore
+            }
+
         }
 
-        private string BuildPollText(List<BotUser> goingUsers
-)
+        private string BuildPollTextHtml(List<BotUser> goingUsers)
+        {
+            var sb = new StringBuilder();
+
+            // Sarlavha
+            sb.AppendLine("<b>⚽ Ertaga futbolga kim boradi?</b>");
+            sb.AppendLine(); // Bo'sh qator
+
+            // Ro'yxat sarlavhasi
+            sb.AppendLine("<b>📋 Hozirgi ro'yxat:</b>");
+            sb.AppendLine(); // Bo'sh qator
+
+            if (!goingUsers?.Any() ?? true)
+            {
+                sb.AppendLine("— Hozircha hech kim yo'q");
+            }
+            else
+            {
+                int i = 1;
+                foreach (var user in goingUsers)
+                {
+                    // Foydalanuvchi nomini formatlash
+                    var name = FormatUserNameHtml(user);
+
+                    // Raqam va nomni qo'shamiz
+                    sb.AppendLine($"{i}. {name}");
+                    i++;
+                }
+
+                sb.AppendLine($"<b> Jami: <u>{i-1}</u> kishi</b>");
+            }
+
+            return sb.ToString();
+        }
+
+        private string FormatUserNameHtml(BotUser user)
+        {
+            if (user == null)
+                return "Noma'lum";
+
+            // Username bo'lsa link qilamiz
+            if (!string.IsNullOrEmpty(user.UserName))
+            {
+                return $"<a>{user.FirstName}  (@{user.UserName})</a>";
+            }
+            else if (!string.IsNullOrEmpty(user.FirstName))
+            {
+                // Faqat ism
+                return System.Net.WebUtility.HtmlEncode(user.FirstName);
+            }
+
+            return "Noma'lum";
+        }
+
+        private string BuildPollText(List<BotUser> goingUsers)
         {
             var sb = new StringBuilder();
 
