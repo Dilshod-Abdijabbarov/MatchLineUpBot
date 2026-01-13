@@ -1,0 +1,6 @@
+services:
+  lineupbot:
+    image: ${DOCKER_REGISTRY-}lineupbot
+    build:
+      context: .
+      dockerfile: LineUpBot/Dockerfile

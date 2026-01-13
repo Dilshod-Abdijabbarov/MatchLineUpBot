@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\LineUpBot.csproj": {}
+    "C:\\Users\\Dilshod\\Source\\Repos\\LineUpBot\\LineUpBot\\LineUpBot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\LineUpBot.csproj": {
+    "C:\\Users\\Dilshod\\Source\\Repos\\LineUpBot\\LineUpBot\\LineUpBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\LineUpBot.csproj",
+        "projectUniqueName": "C:\\Users\\Dilshod\\Source\\Repos\\LineUpBot\\LineUpBot\\LineUpBot.csproj",
         "projectName": "LineUpBot",
-        "projectPath": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\LineUpBot.csproj",
-        "packagesPath": "C:\\Users\\d_abdujabbarov\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\obj\\",
+        "projectPath": "C:\\Users\\Dilshod\\Source\\Repos\\LineUpBot\\LineUpBot\\LineUpBot.csproj",
+        "packagesPath": "C:\\Users\\Dilshod\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Dilshod\\Source\\Repos\\LineUpBot\\LineUpBot\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\d_abdujabbarov\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Dilshod\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -64,6 +63,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": {
+              "target": "Package",
+              "version": "[1.21.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -93,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -11,10 +11,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("3814641f-740c-4e2b-8c4e-9c60558dbe08")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("LineUpBot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae462845ccbf6bbf71bf0d18880a05774ee92af3")]
 [assembly: System.Reflection.AssemblyProductAttribute("LineUpBot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LineUpBot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
