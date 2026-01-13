@@ -6,7 +6,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
 // 🔹 Telegram bot client
 builder.Services.AddSingleton<ITelegramBotClient>(
     new TelegramBotClient("8447766617:AAFCiEh6WpnS0fkzhVWQVUa7y5tmcggdrCw"));
