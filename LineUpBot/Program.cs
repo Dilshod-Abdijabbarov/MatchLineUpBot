@@ -1,7 +1,7 @@
-﻿using System;
-using LineUpBot.IServices;
-using LineUpBot.MatchDbContext;
-using LineUpBot.Services;
+﻿using LineUpBot.Context.MatchDbContext;
+using LineUpBot.Domain.Configuration;
+using LineUpBot.Service.IServices;
+using LineUpBot.Service.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -18,7 +18,7 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 // Add services to the container.
 builder.Services.AddDbContext<MatchLineUpDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
-
+builder.Services.AddHostedService<TelegramWebhookInitializer>();
 
 var app = builder.Build();
 
