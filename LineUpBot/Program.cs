@@ -17,7 +17,11 @@ builder.Services.AddScoped<BotMenuService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 // Add services to the container.
 builder.Services.AddDbContext<MatchLineUpDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+{
+    var cs = builder.Configuration["DefaultConnectionString"];
+    options.UseNpgsql(cs);
+}); 
+
 builder.Services.AddHostedService<TelegramWebhookInitializer>();
 
 var app = builder.Build();
@@ -34,21 +38,10 @@ app.MapPost("/api/webhook", async (
 
 app.MapGet("/health", () => Results.Ok("OK"));
 
-app.Lifetime.ApplicationStarted.Register(async () =>
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-    try
-    {
-        var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
-        await db.Database.MigrateAsync();
-        Console.WriteLine("✅ Database migrated");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("❌ Database migrate error:");
-        Console.WriteLine(ex.Message);
-    }
-});
-
+    var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: DbTelegramBot
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: minzdrav1+
+      POSTGRES_PASSWORD: minzdrav123
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -21,7 +21,7 @@ services:
     depends_on:
       - postgres
     environment:
-      ConnectionStrings__DefaultConnectionString: Host=postgres;Port=5432;Database=DbTelegramBot;Username=postgres;Password=minzdrav1+
+      ConnectionStrings__DefaultConnectionString: Host=postgres;Port=5432;Database=DbTelegramBot;Username=postgres;Password=minzdrav123
     ports:
       - "5000:8080"
 
