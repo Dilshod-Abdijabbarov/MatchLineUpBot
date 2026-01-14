@@ -32,11 +32,21 @@ app.MapPost("/api/webhook", async (
     return Results.Ok();
 });
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
-//    db.Database.Migrate();
-//}
+app.Lifetime.ApplicationStarted.Register(async () =>
+{
+    using var scope = app.Services.CreateScope();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
+        await db.Database.MigrateAsync();
+        Console.WriteLine("✅ Database migrated");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("❌ Database migrate error:");
+        Console.WriteLine(ex.Message);
+    }
+});
 
 
 app.Run();
