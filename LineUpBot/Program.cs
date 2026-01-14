@@ -32,6 +32,8 @@ app.MapPost("/api/webhook", async (
     return Results.Ok();
 });
 
+app.MapGet("/health", () => Results.Ok("OK"));
+
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
     using var scope = app.Services.CreateScope();
