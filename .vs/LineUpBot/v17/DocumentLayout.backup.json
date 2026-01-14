@@ -3,32 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Migrations\\20260112085052_Added_MessageId_inSurvey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:LineUpBot\\Migrations\\20260112085052_Added_MessageId_inSurvey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\models\\group.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\models\\group.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\docker-compose.override.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|solutionrelative:docker-compose.override.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\models\\botuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\models\\botuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|solutionrelative:docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\services\\botmenuservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\services\\botmenuservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\services\\telegramupdatehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\services\\telegramupdatehandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\domain\\configuration\\telegramwebhookinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\domain\\configuration\\telegramwebhookinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\iservices\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\iservices\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\domain\\models\\survey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\domain\\models\\survey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\services\\groupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\services\\groupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\domain\\models\\groupuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\domain\\models\\groupuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\domain\\models\\group.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\domain\\models\\group.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|c:\\users\\d_abdujabbarov\\downloads\\lineupbot1\\lineupbot1\\lineupbot\\lineupbot\\domain\\models\\botuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95716F17-4332-4268-A401-D4C4A5DE724F}|LineUpBot\\LineUpBot.csproj|solutionrelative:lineupbot\\domain\\models\\botuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,93 +54,119 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20260112085052_Added_MessageId_inSurvey.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Migrations\\20260112085052_Added_MessageId_inSurvey.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\Migrations\\20260112085052_Added_MessageId_inSurvey.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Migrations\\20260112085052_Added_MessageId_inSurvey.cs",
-              "RelativeToolTip": "LineUpBot\\Migrations\\20260112085052_Added_MessageId_inSurvey.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T08:50:52.445Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Group.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Models\\Group.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\Models\\Group.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Models\\Group.cs",
-              "RelativeToolTip": "LineUpBot\\Models\\Group.cs",
+              "Title": "docker-compose.override.yml",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\docker-compose.override.yml",
+              "RelativeDocumentMoniker": "docker-compose.override.yml",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\docker-compose.override.yml",
+              "RelativeToolTip": "docker-compose.override.yml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T08:49:49.983Z",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2026-01-14T04:57:01.636Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "BotUser.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Models\\BotUser.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\Models\\BotUser.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Models\\BotUser.cs",
-              "RelativeToolTip": "LineUpBot\\Models\\BotUser.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T08:49:46.347Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "GroupService.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Services\\GroupService.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\Services\\GroupService.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Services\\GroupService.cs",
-              "RelativeToolTip": "LineUpBot\\Services\\GroupService.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T07:31:40.703Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IUserService.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\IServices\\IUserService.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\IServices\\IUserService.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\IServices\\IUserService.cs",
-              "RelativeToolTip": "LineUpBot\\IServices\\IUserService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAoAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T07:20:19.467Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "BotMenuService.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Services\\BotMenuService.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\Services\\BotMenuService.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Services\\BotMenuService.cs",
-              "RelativeToolTip": "LineUpBot\\Services\\BotMenuService.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAQwCQAAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-12T02:27:23.006Z",
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2026-01-14T04:48:26.274Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "TelegramUpdateHandler.cs",
-              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Services\\TelegramUpdateHandler.cs",
-              "RelativeDocumentMoniker": "LineUpBot\\Services\\TelegramUpdateHandler.cs",
-              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Services\\TelegramUpdateHandler.cs",
-              "RelativeToolTip": "LineUpBot\\Services\\TelegramUpdateHandler.cs",
-              "ViewState": "AgIAAHAAAAAAAAAAAAAYwIMAAAAMAAAAAAAAAA==",
+              "Title": "TelegramWebhookInitializer.cs",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Configuration\\TelegramWebhookInitializer.cs",
+              "RelativeDocumentMoniker": "LineUpBot\\Domain\\Configuration\\TelegramWebhookInitializer.cs",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Configuration\\TelegramWebhookInitializer.cs",
+              "RelativeToolTip": "LineUpBot\\Domain\\Configuration\\TelegramWebhookInitializer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-11T10:11:36.055Z",
+              "WhenOpened": "2026-01-14T04:23:11.103Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Survey.cs",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\Survey.cs",
+              "RelativeDocumentMoniker": "LineUpBot\\Domain\\Models\\Survey.cs",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\Survey.cs",
+              "RelativeToolTip": "LineUpBot\\Domain\\Models\\Survey.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T04:18:01.03Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "GroupUser.cs",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\GroupUser.cs",
+              "RelativeDocumentMoniker": "LineUpBot\\Domain\\Models\\GroupUser.cs",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\GroupUser.cs",
+              "RelativeToolTip": "LineUpBot\\Domain\\Models\\GroupUser.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T04:17:58.509Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Group.cs",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\Group.cs",
+              "RelativeDocumentMoniker": "LineUpBot\\Domain\\Models\\Group.cs",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\Group.cs",
+              "RelativeToolTip": "LineUpBot\\Domain\\Models\\Group.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T04:17:55.288Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "BotUser.cs",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\BotUser.cs",
+              "RelativeDocumentMoniker": "LineUpBot\\Domain\\Models\\BotUser.cs",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\Domain\\Models\\BotUser.cs",
+              "RelativeToolTip": "LineUpBot\\Domain\\Models\\BotUser.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T04:17:46.413Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\appsettings.json",
+              "RelativeDocumentMoniker": "LineUpBot\\appsettings.json",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\appsettings.json",
+              "RelativeToolTip": "LineUpBot\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-01-14T04:12:55.775Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "LineUpBot\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\d_abdujabbarov\\Downloads\\LineUpBot1\\LineUpBot1\\LineUpBot\\LineUpBot\\appsettings.Development.json*",
+              "RelativeToolTip": "LineUpBot\\appsettings.Development.json*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-01-14T04:12:28.47Z",
               "EditorCaption": ""
             }
           ]
