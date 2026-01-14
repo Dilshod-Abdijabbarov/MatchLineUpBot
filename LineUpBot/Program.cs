@@ -24,7 +24,7 @@ var app = builder.Build();
 
 
 // 🔹 Webhook endpoint
-app.MapPost("/webhook", async (
+app.MapPost("/api/webhook", async (
     Update update,
     ITelegramUpdateHandler handler) =>
 {
@@ -32,11 +32,11 @@ app.MapPost("/webhook", async (
     return Results.Ok();
 });
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
-    db.Database.Migrate();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
+//    db.Database.Migrate();
+//}
 
 
 app.Run();

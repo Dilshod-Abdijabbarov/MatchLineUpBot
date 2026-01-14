@@ -15,7 +15,7 @@ namespace LineUpBot.Domain.Configuration
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             await _botClient.SetWebhook(
-                url: "https://p01--matchlineup--t9sr8pzzydnp.code.run/webhook",
+                url: "https://p01--matchlineup--t9sr8pzzydnp.code.run/api/webhook",
                 cancellationToken: cancellationToken
             );
         }
