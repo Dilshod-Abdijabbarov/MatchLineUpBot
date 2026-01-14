@@ -1,6 +1,29 @@
+version: "3.9"
+
 services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: DbTelegramBot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: minzdrav1+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   lineupbot:
     image: ${DOCKER_REGISTRY-}lineupbot
     build:
       context: .
       dockerfile: LineUpBot/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      ConnectionStrings__DefaultConnectionString: Host=postgres;Port=5432;Database=DbTelegramBot;Username=postgres;Password=minzdrav1+
+    ports:
+      - "5000:8080"
+
+volumes:
+  postgres_data:
