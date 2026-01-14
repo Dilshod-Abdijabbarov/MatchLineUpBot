@@ -17,7 +17,7 @@ builder.Services.AddScoped<BotMenuService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 // Add services to the container.
 builder.Services.AddDbContext<MatchLineUpDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 builder.Services.AddHostedService<TelegramWebhookInitializer>();
 
 var app = builder.Build();
