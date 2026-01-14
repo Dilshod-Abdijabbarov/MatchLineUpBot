@@ -38,10 +38,20 @@ app.MapPost("/api/webhook", async (
 
 app.MapGet("/health", () => Results.Ok("OK"));
 
-using (var scope = app.Services.CreateScope())
+app.Lifetime.ApplicationStarted.Register(async () =>
 {
-    var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
-    db.Database.Migrate();
-}
+    using var scope = app.Services.CreateScope();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
+        await db.Database.MigrateAsync();
+        Console.WriteLine("✅ Database migrated");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("❌ Database migrate error:");
+        Console.WriteLine(ex.Message);
+    }
+});
 
 app.Run();
