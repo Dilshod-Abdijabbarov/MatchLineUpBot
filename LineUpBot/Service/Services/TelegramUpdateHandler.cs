@@ -115,7 +115,7 @@ namespace LineUpBot.Service.Services
             {
                 survey = new Survey
                 {
-                    Question = "⚽ Ertaga futbolga kim boradi?",
+                    Question = "<b>⚽ ⚽ ⚽ FUTBOL\nJuma kuni soat 19:00 da futbolga kim boradi?</b>",
                     CurrentWeek = currentWeek,
                 };
 
@@ -201,7 +201,7 @@ namespace LineUpBot.Service.Services
             var sb = new StringBuilder();
 
             // Sarlavha
-            sb.AppendLine("<b>⚽ ⚽ ⚽ FUTBOL\nJuma kuni soat 19:00 da futbol o‘ynaymiz.\nKim boradi?</b>");
+            sb.AppendLine("<b>⚽ ⚽ ⚽ FUTBOL\nJuma kuni soat 19:00 da futbolga kim boradi?</b>");
             sb.AppendLine();
 
             // Ro'yxat sarlavhasi
