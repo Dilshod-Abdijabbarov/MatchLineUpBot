@@ -1,4 +1,5 @@
-﻿using LineUpBot.IServices;
+﻿using System;
+using LineUpBot.IServices;
 using LineUpBot.MatchDbContext;
 using LineUpBot.Services;
 using Microsoft.EntityFrameworkCore;
@@ -30,5 +31,12 @@ app.MapPost("/webhook", async (
     await handler.HandleAsync(update);
     return Results.Ok();
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
+    db.Database.Migrate();
+}
+
 
 app.Run();
