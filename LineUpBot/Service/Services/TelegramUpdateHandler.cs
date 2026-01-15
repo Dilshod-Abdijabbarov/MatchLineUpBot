@@ -115,7 +115,7 @@ namespace LineUpBot.Service.Services
             {
                 survey = new Survey
                 {
-                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kim boradi?</b>",
+                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kimlar boradi?</b>",
                     CurrentWeek = currentWeek,
                 };
 
@@ -208,12 +208,17 @@ namespace LineUpBot.Service.Services
             var sb = new StringBuilder();
 
             // Sarlavha
-            sb.AppendLine($"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kim boradi?</b>");
-            sb.AppendLine();
+            sb.AppendLine("<b>⚽ FUTBOL ⚽</b>");
+            sb.AppendLine("━━━━━━━━━━━━━━━");
+            sb.AppendLine(
+                $"<b>📅 Juma, {GetFridayDate()}</b>\n" +
+                $"<b>⏰ Soat: 19:00</b>\n"
+            );
 
             // Ro'yxat sarlavhasi
-            sb.AppendLine("<b>📋 Hozirgi ro'yxat:</b>");
-            sb.AppendLine();
+            sb.AppendLine("<b>❓ Futbolga kim boradi?</b>");
+            sb.AppendLine("━━━━━━━━━━━━━━━");
+            sb.AppendLine("<b>📋 Hozirgi ro‘yxat:</b>");
 
             if (!goingUsers?.Any() ?? true)
             {
@@ -224,15 +229,14 @@ namespace LineUpBot.Service.Services
                 int i = 1;
                 foreach (var user in goingUsers)
                 {
-                    // Foydalanuvchi nomini formatlash
                     var name = FormatUserNameHtml(user);
 
-                    // Raqam va nomni qo'shamiz
                     sb.AppendLine($"{i}. {name}");
                     i++;
                 }
 
-                sb.AppendLine($"<b> Jami: <u>{i-1}</u> kishi</b>");
+                sb.AppendLine("━━━━━━━━━━━━━━━");
+                sb.AppendLine($"👥 <b>Jami:</b> <u>{i - 1}</u> kishi");
             }
 
             return sb.ToString();
@@ -246,7 +250,7 @@ namespace LineUpBot.Service.Services
             // Username 
             if (!string.IsNullOrEmpty(user.UserName))
             {
-                return $"<a>{user.FirstName}  (@{user.UserName})</a>";
+                return $"<a href=\"https://t.me/{user.UserName}\">{user.FirstName}</a>";
             }
             else if (!string.IsNullOrEmpty(user.FirstName))
             {
