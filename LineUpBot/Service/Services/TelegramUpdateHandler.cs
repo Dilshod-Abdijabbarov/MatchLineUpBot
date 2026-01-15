@@ -115,7 +115,7 @@ namespace LineUpBot.Service.Services
             {
                 survey = new Survey
                 {
-                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL\nJuma({GetFridayDate}) kuni soat 19:00 da futbolga kim boradi?</b>",
+                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate}) kuni soat 19:00 da futbolga kim boradi?</b>",
                     CurrentWeek = currentWeek,
                 };
 
@@ -208,7 +208,7 @@ namespace LineUpBot.Service.Services
             var sb = new StringBuilder();
 
             // Sarlavha
-            sb.AppendLine("<b>⚽ ⚽ ⚽ FUTBOL\nJuma kuni soat 19:00 da futbolga kim boradi?</b>");
+            sb.AppendLine($"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate}) kuni soat 19:00 da futbolga kim boradi?</b>");
             sb.AppendLine();
 
             // Ro'yxat sarlavhasi
