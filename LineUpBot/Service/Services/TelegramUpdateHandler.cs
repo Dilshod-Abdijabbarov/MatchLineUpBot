@@ -211,8 +211,8 @@ namespace LineUpBot.Service.Services
             sb.AppendLine("<b>⚽ FUTBOL ⚽</b>");
             sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
             sb.AppendLine(
-                $"<b>    📅 Juma, {GetFridayDate()}</b>\n" +
-                $"<b>    ⏰ Soat: 19:00</b>\n"
+                $"<b>📅 Juma, {GetFridayDate()}</b>\n" +
+                $"<b>⏰ Soat: 19:00</b>\n"
             );
 
             // Ro'yxat sarlavhasi
