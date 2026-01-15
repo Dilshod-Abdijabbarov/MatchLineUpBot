@@ -235,7 +235,7 @@ namespace LineUpBot.Service.Services
                     i++;
                 }
 
-                sb.AppendLine("━━━━━━━━━━━━━━━");
+                sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
                 sb.AppendLine($"👥 <b>Jami:</b> <u>{i - 1}</u> kishi");
             }
 
