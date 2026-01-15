@@ -208,21 +208,21 @@ namespace LineUpBot.Service.Services
             var sb = new StringBuilder();
 
             // Sarlavha
-            sb.AppendLine("<b>⚽ FUTBOL ⚽</b>");
-            sb.AppendLine("━━━━━━━━━━━━━━━");
+            sb.AppendLine("<b>    ⚽ FUTBOL ⚽</b>");
+            sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
             sb.AppendLine(
                 $"<b>📅 Juma, {GetFridayDate()}</b>\n" +
                 $"<b>⏰ Soat: 19:00</b>\n"
             );
 
             // Ro'yxat sarlavhasi
-            sb.AppendLine("<b>❓ Futbolga kim boradi?</b>");
-            sb.AppendLine("━━━━━━━━━━━━━━━");
-            sb.AppendLine("<b>📋 Hozirgi ro‘yxat:</b>");
+            sb.AppendLine("<b>    ❓ Futbolga kim boradi?</b>");
+            sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
+            sb.AppendLine("<b>    📋 Hozirgi ro‘yxat:</b>");
 
             if (!goingUsers?.Any() ?? true)
             {
-                sb.AppendLine("— Hozircha hech kim yo'q");
+                sb.AppendLine("    — Hozircha hech kim yo'q");
             }
             else
             {
@@ -236,7 +236,7 @@ namespace LineUpBot.Service.Services
                 }
 
                 sb.AppendLine("━━━━━━━━━━━━━━━");
-                sb.AppendLine($"👥 <b>Jami:</b> <u>{i - 1}</u> kishi");
+                sb.AppendLine($"    👥 <b>Jami:</b> <u>{i - 1}</u> kishi");
             }
 
             return sb.ToString();
@@ -250,7 +250,7 @@ namespace LineUpBot.Service.Services
             // Username 
             if (!string.IsNullOrEmpty(user.UserName))
             {
-                return $"<a href=\"https://t.me/{user.UserName}\">{user.FirstName}</a>";
+                return $"<a>{user.FirstName}  (@{user.UserName})</a>";
             }
             else if (!string.IsNullOrEmpty(user.FirstName))
             {
