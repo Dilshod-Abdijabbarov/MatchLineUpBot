@@ -110,12 +110,12 @@ namespace LineUpBot.Service.Services
         {
             var currentWeek = GetWeekNumber();
             var survey = await _dbContext.Surveys.FirstOrDefaultAsync(s => s.IsActive && s.CurrentWeek == currentWeek);
-            
+
             if (survey == null)
             {
                 survey = new Survey
                 {
-                    Question = "<b>⚽ ⚽ ⚽ FUTBOL\nJuma kuni soat 19:00 da futbolga kim boradi?</b>",
+                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL\nJuma({GetFridayDate}) kuni soat 19:00 da futbolga kim boradi?</b>",
                     CurrentWeek = currentWeek,
                 };
 
@@ -151,6 +151,13 @@ namespace LineUpBot.Service.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        private string GetFridayDate()
+        {
+            var today = DateTime.UtcNow;
+            int daysUntilFriday = ((int)DayOfWeek.Friday - (int)today.DayOfWeek + 7) % 7;
+            var fridayDate = today.AddDays(daysUntilFriday);
+            return fridayDate.ToString("dd.MM.yyyy");
+        }
         private int GetWeekNumber()
         {
             var calendar = CultureInfo.InvariantCulture.Calendar;
