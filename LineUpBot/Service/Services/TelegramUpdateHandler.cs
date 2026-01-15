@@ -218,7 +218,7 @@ namespace LineUpBot.Service.Services
             // Ro'yxat sarlavhasi
             sb.AppendLine("<b>❓ Futbolga kim boradi?</b>");
             sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
-            sb.AppendLine("<b>📋 Boradiganlar ro‘yxat:</b>");
+            sb.AppendLine("<b>📋 Boradiganlar ro‘yxati:</b>");
 
             if (!goingUsers?.Any() ?? true)
             {
