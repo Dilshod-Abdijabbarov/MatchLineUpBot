@@ -36,7 +36,7 @@ public class BotMenuService
         });
 
         var currentWeek = GetWeekNumber();
-        if (await _dbContext.Surveys.AnyAsync(x=>x.IsActive && x.CurrentWeek == currentWeek))
+        if (true)//await _dbContext.Surveys.AnyAsync(x => x.IsActive && x.CurrentWeek == currentWeek))
         {
             keyboard = new InlineKeyboardMarkup(new[]
             {

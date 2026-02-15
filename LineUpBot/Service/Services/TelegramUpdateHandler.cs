@@ -47,6 +47,14 @@ namespace LineUpBot.Service.Services
                 case "/start":
                     await _botMenuService.SendMainMenu(chatId);
                     break;
+                case "/users":
+                    await SendUsersList(chatId);
+                    break;
+
+                case "/team":
+                    await GenerateBalancedTeams(chatId);
+                    break;
+
             }
         }
 
@@ -66,17 +74,9 @@ namespace LineUpBot.Service.Services
                 var parts = callback.Data.Split(':');
                 var action = parts[0];
 
-                //await _botClient.AnswerCallbackQuery(
-                //    callback.Id,
-                //    text: "⏳",
-                //    showAlert: false
-                //);
-
                 int? surveyId = null;
                 if (parts.Length > 1 && int.TryParse(parts[1], out var id))
                     surveyId = id;
-
-                //await _botClient.AnswerCallbackQuery(callback.Id);
 
                 switch (action)
                 {
@@ -93,6 +93,25 @@ namespace LineUpBot.Service.Services
                         if (surveyId == null) return;
                         await HandlePollVote(callback, surveyId.Value, false);
                         break;
+
+                    // yoki bitta formatda ishlatsang:
+                    case "SCORE":
+                        if (parts.Length < 3) return;
+                        await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), int.Parse(parts[2]));
+                        break;
+
+                    case "SCORE_PLUS":
+                        await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), +1);
+                        break;
+
+                    case "SCORE_MINUS":
+                        await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), -1);
+                        break;
+
+                    case "NONE":
+                        // Hech qanday amal bajarmaymiz, shunchaki callbackni yopamiz
+                        await _botClient.AnswerCallbackQuery(callback.Id);
+                        break;                   
                 }
             }
             catch (Exception ex)
@@ -109,14 +128,15 @@ namespace LineUpBot.Service.Services
         private async Task HandleCreatePoll(long chatId, CallbackQuery callback)
         {
             var currentWeek = GetWeekNumber();
-            var survey = await _dbContext.Surveys.FirstOrDefaultAsync(s => s.IsActive && s.CurrentWeek == currentWeek);
-
+            var survey =  await _dbContext.Surveys.FirstOrDefaultAsync(s => s.IsActive && s.CurrentWeek == currentWeek);
             if (survey == null)
             {
                 survey = new Survey
                 {
                     Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kimlar boradi?</b>",
                     CurrentWeek = currentWeek,
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 await _dbContext.Surveys.AddAsync(survey);
@@ -261,33 +281,161 @@ namespace LineUpBot.Service.Services
             return "Noma'lum";
         }
 
-        private string BuildPollText(List<BotUser> goingUsers)
+        private async Task SendUsersList(long chatId)
         {
-            var sb = new StringBuilder();
+            var users = await _dbContext.BotUsers
+                .OrderByDescending(x => x.Score)
+                .ToListAsync();
 
-            sb.AppendLine("⚽ *Ertaga futbolga kim boradi?*\n");
-            sb.AppendLine("📋 *Hozirgi ro‘yxat:*\n");
+            // Text yubormaymiz, faqat keyboard
+            var keyboard = BuildUsersKeyboard(users);
 
-            if (!goingUsers.Any())
+            await _botClient.SendMessage(
+                chatId: chatId,
+                text: "<b>Foydalanuvchilar ro'yxati:</b>",
+                parseMode: ParseMode.Html,
+                replyMarkup: keyboard
+            );
+        }
+
+        private InlineKeyboardMarkup BuildUsersKeyboard(List<BotUser> users)
+        {
+            var rows = new List<List<InlineKeyboardButton>>();
+
+            foreach (var u in users)
             {
-                sb.AppendLine("— Hozircha hech kim yo‘q");
-            }
-            else
-            {
-                int i = 1;
-                foreach (var user in goingUsers)
+                // 1. Ma'lumot tugmasi (Bosilganda hech narsa qilmaydi)
+                string infoText = $"👤 {u.FirstName} (@{u.UserName}) | ⭐ {u.Score}";
+
+                rows.Add(new List<InlineKeyboardButton>
                 {
-                    var name = !string.IsNullOrEmpty(user.UserName)
-                        ? $"@{user.UserName}"
-                        : user.FirstName;
+                    InlineKeyboardButton.WithCallbackData(infoText, "NONE")
+                });
+               
+                        // 2. Boshqaruv tugmalari (Pastki qatorda yonma-yon)
+                        rows.Add(new List<InlineKeyboardButton>
+                {
+                    InlineKeyboardButton.WithCallbackData("➕ 1 ball", $"SCORE:{u.ChatId}:1"),
+                    InlineKeyboardButton.WithCallbackData("➖ 1 ball", $"SCORE:{u.ChatId}:-1")
+                });
+            }
 
-                    sb.AppendLine($"{i}. {name}");
-                    i++;
+            return new InlineKeyboardMarkup(rows);
+        }
+
+        private async Task UpdateUserScoreAndRefreshList(CallbackQuery callback, long chatId, int delta)
+        {
+            var user = await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.ChatId == chatId);
+            
+            if (user == null)
+            {
+                await _botClient.AnswerCallbackQuery(callback.Id, "❌ User topilmadi", true);
+                return;
+            }
+
+            // 2. Ballni yangilaymiz
+            user.Score += delta;
+
+            await _dbContext.SaveChangesAsync();
+
+            // 3. Yangilangan ro'yxatni ballar bo'yicha saralab olamiz
+            var users = await _dbContext.BotUsers
+                .OrderByDescending(x => x.Score)
+                .ToListAsync();
+
+            // 4. Yangi keyboard yasaymiz (ichida yangi ballar bilan)
+            var keyboard = BuildUsersKeyboard(users);
+
+            // 5. Xabarni yangilaymiz
+            try
+            {
+                await _botClient.EditMessageText(
+                    chatId: callback.Message.Chat.Id,
+                    messageId: callback.Message.MessageId,
+                    text: "<b>Foydalanuvchilar reytingi</b>",
+                    parseMode: ParseMode.Html,
+                    replyMarkup: keyboard
+                );
+
+                await _botClient.AnswerCallbackQuery(callback.Id, $"✅ {user.FirstName}: {user.Score}");
+            }
+            catch (Exception ex)
+            {
+                // Agar foydalanuvchi bir xil tugmani ko'p bossa va ball o'zgarmasa, 
+                // Telegram "Message is not modified" xatosini beradi. Shuni oldini olamiz.
+                await _botClient.AnswerCallbackQuery(callback.Id);
+            }
+        }
+
+        public async Task GenerateBalancedTeams(long chatId)
+        {
+            // 1. Barcha userlarni ballari bo'yicha kamayish tartibida olamiz
+            var users = await _dbContext.BotUsers
+                .OrderByDescending(u => u.Score)
+                .ToListAsync();
+
+            //if (users.Count < 4)
+            //    return "⚠️ Jamoa tuzish uchun kamida 4 ta foydalanuvchi kerak!";
+
+            int usersPerTeam = 4;
+            int numberOfTeams = users.Count / usersPerTeam; // Masalan: 13 user / 4 = 3 ta jamoa
+
+            // Jamoalar ro'yxatini yaratamiz
+            var teams = new List<List<BotUser>>();
+            for (int i = 0; i < numberOfTeams; i++)
+            {
+                teams.Add(new List<BotUser>());
+            }
+
+            // 2. Snake Draft (Ilon izi) taqsimoti
+            int currentTeam = 0;
+            bool movingForward = true;
+
+            for (int i = 0; i < users.Count; i++)
+            {
+                // Agar jamoalar to'lgan bo'lsa va userlar ortib qolsa (masalan 13-user), 
+                // uni oxirgi jamoaga qo'shib qo'yamiz
+                if (i >= numberOfTeams * usersPerTeam)
+                {
+                    teams[numberOfTeams - 1].Add(users[i]);
+                    continue;
+                }
+
+                teams[currentTeam].Add(users[i]);
+
+                if (movingForward)
+                {
+                    if (currentTeam == numberOfTeams - 1) movingForward = false;
+                    else currentTeam++;
+                }
+                else
+                {
+                    if (currentTeam == 0) movingForward = true;
+                    else currentTeam--;
                 }
             }
 
-            return sb.ToString();
-        }
+            // 3. Natijani chiroyli formatda chiqarish
+            var sb = new StringBuilder();
+            sb.AppendLine("<b>🎭 Teng kuchli jamoalar tuzildi:</b>\n");
 
+            for (int i = 0; i < teams.Count; i++)
+            {
+                int totalScore = teams[i].Sum(u => u.Score);
+                sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {totalScore/4})</b>");
+
+                foreach (var u in teams[i])
+                {
+                    sb.AppendLine($" └ {u.FirstName}");
+                }
+                sb.AppendLine(); // bo'sh qator
+            }
+
+            await _botClient.SendMessage(
+                     chatId: chatId,
+                     text: sb.ToString(),     // 👈 faqat text
+                     parseMode: ParseMode.Html
+            );
+        }
     }
 }

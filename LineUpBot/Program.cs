@@ -18,9 +18,13 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 // Add services to the container.
 builder.Services.AddDbContext<MatchLineUpDbContext>(options =>
 {
-    var cs = builder.Configuration["DefaultConnectionString"];
+    var cs = builder.Configuration.GetConnectionString("DefaultConnectionString");
+
+    if (string.IsNullOrWhiteSpace(cs))
+        throw new Exception("Connection string topilmadi!");
+
     options.UseNpgsql(cs);
-}); 
+});
 
 builder.Services.AddHostedService<TelegramWebhookInitializer>();
 
@@ -38,20 +42,23 @@ app.MapPost("/api/webhook", async (
 
 app.MapGet("/health", () => Results.Ok("OK"));
 
-app.Lifetime.ApplicationStarted.Register(async () =>
+app.Lifetime.ApplicationStarted.Register(() =>
 {
-    using var scope = app.Services.CreateScope();
-    try
+    _ = Task.Run(async () =>
     {
-        var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
-        await db.Database.MigrateAsync();
-        Console.WriteLine("✅ Database migrated");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("❌ Database migrate error:");
-        Console.WriteLine(ex.Message);
-    }
+        using var scope = app.Services.CreateScope();
+        try
+        {
+            var db = scope.ServiceProvider.GetRequiredService<MatchLineUpDbContext>();
+            await db.Database.MigrateAsync();
+            Console.WriteLine("✅ Database migrated");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Database migrate error:");
+            Console.WriteLine(ex.ToString());
+        }
+    });
 });
 
 app.Run();

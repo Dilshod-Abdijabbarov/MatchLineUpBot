@@ -10,5 +10,6 @@ namespace LineUpBot.Service.IServices
         UserState GetState(long userId);
         Task<BotUser> GetOrCreateOrUpdateAsync(Telegram.Bot.Types.User tgUser);
         Task<List<BotUser>> GetUsersByGroupIdAsync(int groupId);
+        Task<List<BotUser>> GetAllUsersAsync();
     }
 }

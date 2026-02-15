@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LineUpBot.Service.Services
 {
-    public  class UserService : IUserService
+    public class UserService : IUserService
     {
         private readonly Dictionary<long, UserState> _states = new();
         private readonly MatchLineUpDbContext _dbContext;
@@ -29,7 +29,7 @@ namespace LineUpBot.Service.Services
 
         public void Clear(long userId)
         {
-             _states.Remove(userId);
+            _states.Remove(userId);
         }
 
 
@@ -62,12 +62,17 @@ namespace LineUpBot.Service.Services
         {
 
             var userIds = await _dbContext.GroupUsers
-                .Where(x => x.GroupId == groupId && x.Active).Select(x=>x.ChatId).ToListAsync();
+                .Where(x => x.GroupId == groupId && x.Active).Select(x => x.ChatId).ToListAsync();
 
             return await _dbContext.BotUsers
                 .Where(x => userIds.Contains(x.ChatId))
                 .ToListAsync();
         }
 
+
+        public async Task<List<BotUser>> GetAllUsersAsync()
+        {
+            return await _dbContext.BotUsers.ToListAsync();
+        }
     }
 }
