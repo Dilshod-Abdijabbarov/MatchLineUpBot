@@ -59,7 +59,7 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case "/users":            
-                    if(user.UserRole == Domain.Enums.UserRole.Admin)
+                    if(user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
                         await GetUsersList(chatId, 0);
                     else
                     {
