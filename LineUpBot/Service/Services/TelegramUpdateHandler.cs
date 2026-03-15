@@ -284,17 +284,15 @@ namespace LineUpBot.Service.Services
         private async Task SendUsersList(long chatId)
         {
             var users = await _dbContext.BotUsers
-                .OrderByDescending(x => x.Score)
                 .ToListAsync();
 
-            // Text yubormaymiz, faqat keyboard
             var keyboard = BuildUsersKeyboard(users);
 
             await _botClient.SendMessage(
                 chatId: chatId,
-                text: "<b>Foydalanuvchilar ro'yxati:</b>",
+                text: "🏆 <b>Foydalanuvchilar reytingi</b>",
                 parseMode: ParseMode.Html,
-                replyMarkup: keyboard
+                replyMarkup: BuildUsersKeyboard(users)
             );
         }
 
@@ -302,21 +300,23 @@ namespace LineUpBot.Service.Services
         {
             var rows = new List<List<InlineKeyboardButton>>();
 
-            foreach (var u in users)
+            var sorted = users
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
+            for (int i = 0; i < sorted.Count; i++)
             {
-                // 1. Ma'lumot tugmasi (Bosilganda hech narsa qilmaydi)
-                string infoText = $"👤 {u.FirstName} (@{u.UserName}) | ⭐ {u.Score}";
+                var u = sorted[i];
+
+                var rank = $"{i + 1}";
 
                 rows.Add(new List<InlineKeyboardButton>
                 {
-                    InlineKeyboardButton.WithCallbackData(infoText, "NONE")
-                });
-               
-                        // 2. Boshqaruv tugmalari (Pastki qatorda yonma-yon)
-                        rows.Add(new List<InlineKeyboardButton>
-                {
-                    InlineKeyboardButton.WithCallbackData("➕ 1 ball", $"SCORE:{u.ChatId}:1"),
-                    InlineKeyboardButton.WithCallbackData("➖ 1 ball", $"SCORE:{u.ChatId}:-1")
+                    InlineKeyboardButton.WithCallbackData(rank, "NONE"),
+                    InlineKeyboardButton.WithCallbackData(u.FirstName, "NONE"),
+                    InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
+                    InlineKeyboardButton.WithCallbackData("🟢", $"SCORE:{u.ChatId}:1"),
+                    InlineKeyboardButton.WithCallbackData("🔴", $"SCORE:{u.ChatId}:-1")
                 });
             }
 
@@ -338,9 +338,7 @@ namespace LineUpBot.Service.Services
 
             await _dbContext.SaveChangesAsync();
 
-            // 3. Yangilangan ro'yxatni ballar bo'yicha saralab olamiz
             var users = await _dbContext.BotUsers
-                .OrderByDescending(x => x.Score)
                 .ToListAsync();
 
             // 4. Yangi keyboard yasaymiz (ichida yangi ballar bilan)
@@ -357,7 +355,7 @@ namespace LineUpBot.Service.Services
                     replyMarkup: keyboard
                 );
 
-                await _botClient.AnswerCallbackQuery(callback.Id, $"✅ {user.FirstName}: {user.Score}");
+                //await _botClient.AnswerCallbackQuery(callback.Id, $"✅ {user.FirstName}: {user.Score}");
             }
             catch (Exception ex)
             {
@@ -369,72 +367,58 @@ namespace LineUpBot.Service.Services
 
         public async Task GenerateBalancedTeams(long chatId)
         {
-            // 1. Barcha userlarni ballari bo'yicha kamayish tartibida olamiz
-            var users = await _dbContext.BotUsers
-                .OrderByDescending(u => u.Score)
-                .ToListAsync();
-
-            //if (users.Count < 4)
-            //    return "⚠️ Jamoa tuzish uchun kamida 4 ta foydalanuvchi kerak!";
+            var users = await _dbContext.BotUsers.ToListAsync();
 
             int usersPerTeam = 4;
-            int numberOfTeams = users.Count / usersPerTeam; // Masalan: 13 user / 4 = 3 ta jamoa
+            int numberOfTeams = users.Count / usersPerTeam;
 
-            // Jamoalar ro'yxatini yaratamiz
+            if (numberOfTeams == 0) return;
+
+            // Random aralashtirish
+            var rnd = new Random();
+            users = users.OrderBy(x => rnd.Next()).ToList();
+
+            // Score bo'yicha saralash
+            users = users.OrderByDescending(u => u.Score).ToList();
+
+            // Jamoalar
             var teams = new List<List<BotUser>>();
+            var teamScores = new int[numberOfTeams];
+
             for (int i = 0; i < numberOfTeams; i++)
-            {
                 teams.Add(new List<BotUser>());
-            }
 
-            // 2. Snake Draft (Ilon izi) taqsimoti
-            int currentTeam = 0;
-            bool movingForward = true;
-
-            for (int i = 0; i < users.Count; i++)
+            foreach (var user in users)
             {
-                // Agar jamoalar to'lgan bo'lsa va userlar ortib qolsa (masalan 13-user), 
-                // uni oxirgi jamoaga qo'shib qo'yamiz
-                if (i >= numberOfTeams * usersPerTeam)
-                {
-                    teams[numberOfTeams - 1].Add(users[i]);
+                // Eng kam balli jamoani topamiz
+                int teamIndex = Array.IndexOf(teamScores, teamScores.Min());
+
+                if (teams[teamIndex].Count >= usersPerTeam)
                     continue;
-                }
 
-                teams[currentTeam].Add(users[i]);
-
-                if (movingForward)
-                {
-                    if (currentTeam == numberOfTeams - 1) movingForward = false;
-                    else currentTeam++;
-                }
-                else
-                {
-                    if (currentTeam == 0) movingForward = true;
-                    else currentTeam--;
-                }
+                teams[teamIndex].Add(user);
+                teamScores[teamIndex] += user.Score;
             }
 
-            // 3. Natijani chiroyli formatda chiqarish
             var sb = new StringBuilder();
-            sb.AppendLine("<b>🎭 Teng kuchli jamoalar tuzildi:</b>\n");
+            sb.AppendLine("<b>🎭 Teng kuchli jamoalar:</b>\n");
 
             for (int i = 0; i < teams.Count; i++)
             {
-                int totalScore = teams[i].Sum(u => u.Score);
-                sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {totalScore/4})</b>");
+                sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {teamScores[i]})</b>");
 
                 foreach (var u in teams[i])
                 {
-                    sb.AppendLine($" └ {u.FirstName}");
+                    sb.AppendLine($" └ {u.FirstName} ({u.Score})");
                 }
-                sb.AppendLine(); // bo'sh qator
+
+                sb.AppendLine();
             }
 
             await _botClient.SendMessage(
-                     chatId: chatId,
-                     text: sb.ToString(),     // 👈 faqat text
-                     parseMode: ParseMode.Html
+                chatId: chatId,
+                text: sb.ToString(),
+                parseMode: ParseMode.Html
             );
         }
     }
