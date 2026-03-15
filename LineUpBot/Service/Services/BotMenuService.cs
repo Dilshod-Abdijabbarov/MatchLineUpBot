@@ -45,7 +45,7 @@ public class BotMenuService
             await _dbContext.SaveChangesAsync();
         }
 
-        var currentWeek = GetWeekNumber();
+        var currentWeek = await GetWeekNumber();
         var isSurvey = await _dbContext.Surveys
             .AnyAsync(x => x.IsActive && x.CurrentWeek == currentWeek && x.TelegramGroupId == telegramGroup.Id);
 
@@ -69,7 +69,7 @@ public class BotMenuService
             replyMarkup: keyboard
         );
     }
-    private int GetWeekNumber()
+    public async Task<int> GetWeekNumber()
     {
         var calendar = CultureInfo.InvariantCulture.Calendar;
 
