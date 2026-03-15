@@ -42,7 +42,7 @@ namespace LineUpBot.Service.Services
 
             var chatId = update.Message.Chat.Id;
 
-            var user = await _userService.GetByUserChatId(chatId);
+            var user = await _userService.GetByUserChatId(update.Message.From.Id);
 
             if (user?.NextCommand == "CREATE_TEAM")
             {
@@ -56,8 +56,17 @@ namespace LineUpBot.Service.Services
                     await _botMenuService.SendMainMenu(chatId);
                     break;
 
-                case "/users":
-                    await GetUsersList(chatId);
+                case "/users":            
+                    if(user.UserRole == Domain.Enums.UserRole.Admin)
+                        await GetUsersList(chatId, 0);
+                    else
+                    {
+                        await _botClient.SendMessage(
+                            chatId,
+                            "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
+                        );
+                    }
+
                     break;
 
                 case "/team":
@@ -71,7 +80,14 @@ namespace LineUpBot.Service.Services
                         chatId,
                         "Bitta jamoada nechta o'yinchi bo'lishini kiriting."
                     );
-                    break;             
+                    break;
+
+                default:
+                    await _botClient.SendMessage(
+                        chatId,
+                        "Bunday buyruq mavjud emas."
+                    );
+                    break;
             }
         }
 
@@ -82,12 +98,12 @@ namespace LineUpBot.Service.Services
                 user.NextCommand = null;
                 await _dbContext.SaveChangesAsync();
 
-                await GenerateBalancedTeams(user.TelegramUserChatId, teamSize);
+                await GenerateBalancedTeams(update.Message.Chat.Id, teamSize);
             }
             else
             {
                 await _botClient.SendMessage(
-                    user.TelegramUserChatId,
+                    update.Message.Chat.Id,
                     "Iltimos faqat raqam kiriting. Masalan: 5"
                 );
             }
@@ -135,24 +151,40 @@ namespace LineUpBot.Service.Services
                         await HandlePollVote(callback, surveyId.Value, false);
                         break;
 
-                    // yoki bitta formatda ishlatsang:
-                    case "SCORE":
-                        if (parts.Length < 3) return;
-                        await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), int.Parse(parts[2]));
-                        break;
-
                     case "SCORE_PLUS":
-                        await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), +1);
+                        // parts[1] - UserId, parts[2] - Joriy sahifa raqami
+                        if (parts.Length > 2)
+                        {
+                            int currentPage = int.Parse(parts[2]);
+                            await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), 1, currentPage);
+                        }
                         break;
 
                     case "SCORE_MINUS":
-                        await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), -1);
+                        if (parts.Length > 2)
+                        {
+                            int currentPage = int.Parse(parts[2]);
+                            await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), -1, currentPage);
+                        }
                         break;
 
-                    case "NONE":
-                        // Hech qanday amal bajarmaymiz, shunchaki callbackni yopamiz
+                    case "PAGE":
+                        if (parts.Length > 1 && int.TryParse(parts[1], out var newPage))
+                        {
+                            await GetUsersList(telegramGroupChatId, newPage, callback.Message.MessageId);
+                        }
                         await _botClient.AnswerCallbackQuery(callback.Id);
-                        break;                   
+                        break;
+
+                    case "SCORE":
+                        if (parts.Length > 3)
+                        {
+                            long targetId = long.Parse(parts[1]);
+                            int delta = int.Parse(parts[2]);
+                            int page = int.Parse(parts[3]); // Sahifa raqami
+                            await UpdateUserScoreAndRefreshList(callback, targetId, delta, page);
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -328,9 +360,13 @@ namespace LineUpBot.Service.Services
             return "Noma'lum";
         }
 
-        private async Task GetUsersList(long chatId, int page = 0)
+        private async Task GetUsersList(long chatId, int page = 0, int? messageId = null)
         {
             int pageSize = 10;
+            if (page < 0) page = 0;
+
+            // Jami foydalanuvchilar sonini aniqlash (Pagination tugmalari uchun)
+            var totalUsers = await _dbContext.BotUsers.CountAsync();
 
             var users = await _dbContext.BotUsers
                 .OrderByDescending(x => x.Score)
@@ -338,83 +374,111 @@ namespace LineUpBot.Service.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var keyboard = BuildUsersKeyboard(users, page);
+            var keyboard = BuildUsersKeyboard(users, page, totalUsers, pageSize);
+            var text = "🏆 <b>Foydalanuvchilar reytingi</b>";
 
-            await _botClient.SendMessage(
-                chatId: chatId,
-                text: "🏆 <b>Foydalanuvchilar reytingi</b>",
-                parseMode: ParseMode.Html,
-                replyMarkup: keyboard
-            );
+            if (messageId.HasValue)
+            {
+                // Tugma bosilganda mavjud xabarni tahrirlash
+                await _botClient.EditMessageText(chatId, messageId.Value, text,
+                    parseMode: ParseMode.Html, replyMarkup: keyboard);
+            }
+            else
+            {
+                // /users yozilganda yangi xabar yuborish
+                await _botClient.SendMessage(chatId, text,
+                    parseMode: ParseMode.Html, replyMarkup: keyboard);
+            }
         }
 
-        private InlineKeyboardMarkup BuildUsersKeyboard(List<BotUser> users, int page)
+
+        private InlineKeyboardMarkup BuildUsersKeyboard(List<BotUser> users, int page, int total, int pageSize)
         {
             var rows = new List<List<InlineKeyboardButton>>();
 
+            // Foydalanuvchilar qatorlari
             for (int i = 0; i < users.Count; i++)
             {
                 var u = users[i];
-                var rank = (page * 10) + i + 1;
+                var rank = (page * pageSize) + i + 1;
 
                 rows.Add(new List<InlineKeyboardButton>
-                {
-                    InlineKeyboardButton.WithCallbackData(rank.ToString(), "NONE"),
-                    InlineKeyboardButton.WithCallbackData(u.FirstName, "NONE"),
-                    InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
-                    InlineKeyboardButton.WithCallbackData("🟢", $"SCORE:{u.TelegramUserChatId}:1"),
-                    InlineKeyboardButton.WithCallbackData("🔴", $"SCORE:{u.TelegramUserChatId}:-1")
-                });
+        {
+            InlineKeyboardButton.WithCallbackData(rank.ToString(), "NONE"),
+            InlineKeyboardButton.WithCallbackData(u.FirstName ?? "User", "NONE"),
+            InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
+            // Sahifani eslab qolish uchun page raqamini ham callbackga qo'shamiz
+            InlineKeyboardButton.WithCallbackData("🟢", $"SCORE:{u.TelegramUserChatId}:1:{page}"),
+            InlineKeyboardButton.WithCallbackData("🔴", $"SCORE:{u.TelegramUserChatId}:-1:{page}")
+        });
             }
 
-            rows.Add(new List<InlineKeyboardButton>
-            {
-                InlineKeyboardButton.WithCallbackData("⬅️", $"PAGE:{page-1}"),
-                InlineKeyboardButton.WithCallbackData($"📄 {page+1}", "NONE"),
-                InlineKeyboardButton.WithCallbackData("➡️", $"PAGE:{page+1}")
-            });
+            // Navigatsiya tugmalari (⬅️ 📄 ➡️)
+            var navRow = new List<InlineKeyboardButton>();
+
+            // Orqaga tugmasi
+            if (page > 0)
+                navRow.Add(InlineKeyboardButton.WithCallbackData("⬅️", $"PAGE:{page - 1}"));
+
+            // Joriy sahifa raqami
+            navRow.Add(InlineKeyboardButton.WithCallbackData($"📄 {page + 1}", "NONE"));
+
+            // Oldinga tugmasi
+            if ((page + 1) * pageSize < total)
+                navRow.Add(InlineKeyboardButton.WithCallbackData("➡️", $"PAGE:{page + 1}"));
+
+            if (navRow.Count > 1 || (navRow.Count == 1 && navRow[0].Text != $"📄 {page + 1}"))
+                rows.Add(navRow);
 
             return new InlineKeyboardMarkup(rows);
         }
 
-        private async Task UpdateUserScoreAndRefreshList(CallbackQuery callback, long chatId, int delta)
+
+        private async Task UpdateUserScoreAndRefreshList(CallbackQuery callback, long targetUserChatId, int delta, int currentPage)
         {
-            var user = await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
-            
+            // 1. Balli o'zgarayotgan foydalanuvchini topish
+            var user = await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.TelegramUserChatId == targetUserChatId);
+
             if (user == null)
             {
-                await _botClient.AnswerCallbackQuery(callback.Id, "❌ User topilmadi", true);
+                await _botClient.AnswerCallbackQuery(callback.Id, "❌ Foydalanuvchi topilmadi", showAlert: true);
                 return;
             }
 
-            // 2. Ballni yangilaymiz
+            // 2. Ballni yangilash va saqlash
             user.Score += delta;
-
             await _dbContext.SaveChangesAsync();
 
+            // 3. Pagination uchun ma'lumotlarni qayta hisoblash
+            int pageSize = 10;
+            var totalUsers = await _dbContext.BotUsers.CountAsync();
+
             var users = await _dbContext.BotUsers
+                .OrderByDescending(x => x.Score) // Ball bo'yicha saralash muhim!
+                .Skip(currentPage * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            // 4. Yangi keyboard yasaymiz (ichida yangi ballar bilan)
-            var keyboard = BuildUsersKeyboard(users);
+            // 4. Yangi keyboard yasash (joriy sahifa bilan)
+            var keyboard = BuildUsersKeyboard(users, currentPage, totalUsers, pageSize);
 
-            // 5. Xabarni yangilaymiz
+            // 5. Xabarni tahrirlash (EditMessage)
             try
             {
                 await _botClient.EditMessageText(
                     chatId: callback.Message.Chat.Id,
                     messageId: callback.Message.MessageId,
-                    text: "<b>Foydalanuvchilar reytingi</b>",
+                    text: $"🏆 <b>Foydalanuvchilar reytingi</b> (Sahifa: {currentPage + 1})",
                     parseMode: ParseMode.Html,
                     replyMarkup: keyboard
                 );
 
-                //await _botClient.AnswerCallbackQuery(callback.Id, $"✅ {user.FirstName}: {user.Score}");
+                // Tugma ostida kichik bildirishnoma chiqarish
+               // await _botClient.AnswerCallbackQuery(callback.Id, $"✅ {user.FirstName}: {user.Score} ball");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Agar foydalanuvchi bir xil tugmani ko'p bossa va ball o'zgarmasa, 
-                // Telegram "Message is not modified" xatosini beradi. Shuni oldini olamiz.
+                // "Message is not modified" xatosini oldini olish
                 await _botClient.AnswerCallbackQuery(callback.Id);
             }
         }
