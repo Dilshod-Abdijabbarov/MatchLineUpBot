@@ -32,6 +32,7 @@ namespace LineUpBot.Service.Services
         }
         public async Task HandleAsync(Update update)
         {
+            await ClearSurveysAsync();
             if (update.CallbackQuery != null)
             {
                 await HandleCallback(update.CallbackQuery);
@@ -98,6 +99,22 @@ namespace LineUpBot.Service.Services
                     break;
             }
         }
+
+        public async Task ClearSurveysAsync()
+        {
+            // 1. Barcha so'rovnomalarni yuklab olamiz
+            var surveys = await _dbContext.Surveys.ToListAsync();
+
+            if (surveys.Any())
+            {
+                // 2. O'chirishga belgilaymiz (Cascade o'rnatilgan bo'lsa, SurveyUsers ham o'chadi)
+                _dbContext.Surveys.RemoveRange(surveys);
+
+                // 3. Bazaga saqlaymiz
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
 
         private async Task CreateTeam(Update update,BotUser user)
         {
