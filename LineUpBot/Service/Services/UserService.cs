@@ -62,6 +62,12 @@ namespace LineUpBot.Service.Services
                 await _dbContext.SaveChangesAsync();
             }
 
+            if (!group.BotUsers.Any(x => x.Id == user.Id))
+            {
+                group.BotUsers.Add(user);
+                await _dbContext.SaveChangesAsync();
+            }
+
             return user;
         }
 
@@ -77,12 +83,6 @@ namespace LineUpBot.Service.Services
 
             return surveyUsers.Select(x=>x.BotUser).ToList();
         }
-
-
-        //public async Task<List<BotUser>> GetAllUsersAsync()
-        //{
-        //    return await _dbContext.BotUsers.ToListAsync();
-        //}
 
         public async Task AddUserToSursey(int userId, int surveyId, bool isGoing)
         {
@@ -108,5 +108,8 @@ namespace LineUpBot.Service.Services
 
             await _dbContext.SaveChangesAsync();
         }
+
+
+
     }
 }
