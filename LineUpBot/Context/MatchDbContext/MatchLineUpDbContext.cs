@@ -10,8 +10,8 @@ public class MatchLineUpDbContext : DbContext
     }
 
     public DbSet<BotUser> BotUsers { get; set; }
-    public DbSet<Group> Groups { get; set; }
+    public DbSet<TelegramGroup> TelegramGroups { get; set; }
     public DbSet<Survey> Surveys { get; set; }
-    public DbSet<GroupUser> GroupUsers { get; set; }
+    public DbSet<SurveyBotUser> SurveyBotUsers { get; set; }
 }
 

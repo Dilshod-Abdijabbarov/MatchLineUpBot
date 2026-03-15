@@ -1,4 +1,5 @@
 ﻿using LineUpBot.Context.MatchDbContext;
+using LineUpBot.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Telegram.Bot;
@@ -15,17 +16,10 @@ public class BotMenuService
         _dbContext = dbContext;
     }
 
-    public async Task SendMainMenu(long chatId)
+    public async Task SendMainMenu(long telegramGroupChatId)
     {
         var keyboard = new InlineKeyboardMarkup(new[]
         {
-            //new[]
-            //{
-            //    InlineKeyboardButton.WithCallbackData(
-            //        "➕ Create Group",
-            //        "CREATE_GROUP"
-            //    )
-            //},
             new[]
              {
                 InlineKeyboardButton.WithCallbackData(
@@ -35,8 +29,27 @@ public class BotMenuService
             }
         });
 
+        var telegramGroup = await _dbContext.TelegramGroups
+            .FirstOrDefaultAsync(x=>x.TelegramGroupChatId == telegramGroupChatId && x.Active);
+
+        if( telegramGroup == null ) 
+        {
+            telegramGroup = new TelegramGroup
+            {
+                 Active = true ,             
+                 Name = $"{telegramGroupChatId}",
+                 TelegramGroupChatId = telegramGroupChatId,
+            };
+
+            await _dbContext.TelegramGroups.AddAsync(telegramGroup);
+            await _dbContext.SaveChangesAsync();
+        }
+
         var currentWeek = GetWeekNumber();
-        if (true)//await _dbContext.Surveys.AnyAsync(x => x.IsActive && x.CurrentWeek == currentWeek))
+        var isSurvey = await _dbContext.Surveys
+            .AnyAsync(x => x.IsActive && x.CurrentWeek == currentWeek && x.TelegramGroupId == telegramGroup.Id);
+
+        if (isSurvey)
         {
             keyboard = new InlineKeyboardMarkup(new[]
             {
@@ -51,7 +64,7 @@ public class BotMenuService
         }
 
         await _bot.SendMessage(
-            chatId: chatId,
+            chatId: telegramGroupChatId,
             text: "⚽ LineUpBot menyusi:",
             replyMarkup: keyboard
         );

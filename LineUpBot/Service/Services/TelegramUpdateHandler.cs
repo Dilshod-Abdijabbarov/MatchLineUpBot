@@ -42,8 +42,7 @@ namespace LineUpBot.Service.Services
 
             var chatId = update.Message.Chat.Id;
 
-            var user = await _dbContext.BotUsers
-                        .FirstOrDefaultAsync(x => x.ChatId == chatId);
+            var user = await _userService.GetByUserChatId(chatId);
 
             if (user?.NextCommand == "CREATE_TEAM")
             {
@@ -58,12 +57,12 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case "/users":
-                    await SendUsersList(chatId);
+                    await GetUsersList(chatId);
                     break;
 
                 case "/team":
                     user = user ?? await _dbContext.BotUsers
-                              .FirstOrDefaultAsync(x => x.ChatId == chatId);
+                              .FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
 
                     user.NextCommand = "CREATE_TEAM";
                     await _dbContext.SaveChangesAsync();
@@ -76,7 +75,6 @@ namespace LineUpBot.Service.Services
             }
         }
 
-
         private async Task CreateTeam(Update update,BotUser user)
         {
             if (int.TryParse(update.Message.Text, out int teamSize))
@@ -84,12 +82,12 @@ namespace LineUpBot.Service.Services
                 user.NextCommand = null;
                 await _dbContext.SaveChangesAsync();
 
-                await GenerateBalancedTeams(user.ChatId, teamSize);
+                await GenerateBalancedTeams(user.TelegramUserChatId, teamSize);
             }
             else
             {
                 await _botClient.SendMessage(
-                    user.ChatId,
+                    user.TelegramUserChatId,
                     "Iltimos faqat raqam kiriting. Masalan: 5"
                 );
             }
@@ -105,8 +103,14 @@ namespace LineUpBot.Service.Services
                     return;
                 }
 
-                var chatId = callback.Message.Chat.Id;
-                var userId = callback.From.Id;
+                // Bu o'sha xabarni ichida turgan chat (guruh yoki shaxsiy) ID-si
+                long telegramGroupChatId = callback.Message.Chat.Id;
+
+                // Tugmani bosgan foydalanuvchi ID-si
+                long userChatId = callback.From.Id;
+
+                if(userChatId != 0)
+                     await _userService.CreateUserAsync(callback.From,telegramGroupChatId);
 
                 var parts = callback.Data.Split(':');
                 var action = parts[0];
@@ -118,7 +122,7 @@ namespace LineUpBot.Service.Services
                 switch (action)
                 {
                     case "CREATE_POLL":
-                        await HandleCreatePoll(chatId,callback);
+                        await HandleCreatePoll(telegramGroupChatId, callback);
                         break;
 
                     case "POLL_YES":
@@ -162,17 +166,20 @@ namespace LineUpBot.Service.Services
             }
         }
 
-        private async Task HandleCreatePoll(long chatId, CallbackQuery callback)
+        private async Task HandleCreatePoll(long telegramGroupChatId, CallbackQuery callback)
         {
+            var groupId = await _groupService.CreateTelegramGroup(telegramGroupChatId);
+
             var currentWeek = GetWeekNumber();
-            var survey =  await _dbContext.Surveys.FirstOrDefaultAsync(s => s.IsActive && s.CurrentWeek == currentWeek);
+            var survey =  await _dbContext.Surveys.FirstOrDefaultAsync(s => s.CurrentWeek == currentWeek && s.TelegramGroupId == groupId && s.IsActive);
             if (survey == null)
             {
                 survey = new Survey
                 {
-                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kimlar boradi?</b>",
                     CurrentWeek = currentWeek,
+                    TelegramGroupId = groupId,
                     IsActive = true,
+                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kimlar boradi?</b>",
                     CreatedDate = DateTime.UtcNow
                 };
 
@@ -180,11 +187,10 @@ namespace LineUpBot.Service.Services
                 await _dbContext.SaveChangesAsync();
             }
 
-            var groupId = await _groupService.CreateGroup(survey.Id);
-            var users = await _userService.GetUsersByGroupIdAsync(groupId) ?? new List<BotUser>();
+            var users = await _dbContext.SurveyBotUsers.Where(x => x.SurveyId == survey.Id && x.Active).Include(x => x.BotUser).Select(x => x.BotUser).ToListAsync();
 
             var message = await _botClient.SendMessage(
-                chatId: chatId,
+                chatId: telegramGroupChatId,
                 text: BuildPollTextHtml(users),
                 parseMode: ParseMode.Html,
                 replyMarkup: new InlineKeyboardMarkup(new[]
@@ -229,21 +235,25 @@ namespace LineUpBot.Service.Services
         {
             try
             {
-                var chatId = callback.Message.Chat.Id;
                 var survey = await _dbContext.Surveys.FindAsync(surveyId);
+
+                long telegramGroupChatId = callback.Message.Chat.Id;
 
                 if (survey == null) return;
 
-                var user = await _userService.GetOrCreateOrUpdateAsync(callback.From);
-                var groupId = await _groupService.CreateGroup(surveyId);
-                await _groupService.AddUserToGroup(user.ChatId, groupId, isGoing);
-                var users = await _userService.GetUsersByGroupIdAsync(groupId);
+                var groupId = await _groupService.CreateTelegramGroup(telegramGroupChatId);
+
+                var user = await _userService.GetByUserChatId(callback.From.Id);
+
+                await _userService.AddUserToSursey(user.Id, surveyId, isGoing);
+
+                var users = await _userService.GetUsersBySurveyIdAsync(surveyId);
 
                 // HTML formatda text tayyorlash
                 var pollText = BuildPollTextHtml(users);
 
                 await _botClient.EditMessageText(
-                    chatId: chatId,
+                    chatId: telegramGroupChatId,
                     messageId: survey.MessageId ?? 0,
                     text: pollText,
                     parseMode: ParseMode.Html, // HTML format ishlatamiz
@@ -318,51 +328,58 @@ namespace LineUpBot.Service.Services
             return "Noma'lum";
         }
 
-        private async Task SendUsersList(long chatId)
+        private async Task GetUsersList(long chatId, int page = 0)
         {
+            int pageSize = 10;
+
             var users = await _dbContext.BotUsers
+                .OrderByDescending(x => x.Score)
+                .Skip(page * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            var keyboard = BuildUsersKeyboard(users);
+            var keyboard = BuildUsersKeyboard(users, page);
 
             await _botClient.SendMessage(
                 chatId: chatId,
                 text: "🏆 <b>Foydalanuvchilar reytingi</b>",
                 parseMode: ParseMode.Html,
-                replyMarkup: BuildUsersKeyboard(users)
+                replyMarkup: keyboard
             );
         }
 
-        private InlineKeyboardMarkup BuildUsersKeyboard(List<BotUser> users)
+        private InlineKeyboardMarkup BuildUsersKeyboard(List<BotUser> users, int page)
         {
             var rows = new List<List<InlineKeyboardButton>>();
 
-            var sorted = users
-                .OrderByDescending(x => x.Score)
-                .ToList();
-
-            for (int i = 0; i < sorted.Count; i++)
+            for (int i = 0; i < users.Count; i++)
             {
-                var u = sorted[i];
-
-                var rank = $"{i + 1}";
+                var u = users[i];
+                var rank = (page * 10) + i + 1;
 
                 rows.Add(new List<InlineKeyboardButton>
                 {
-                    InlineKeyboardButton.WithCallbackData(rank, "NONE"),
+                    InlineKeyboardButton.WithCallbackData(rank.ToString(), "NONE"),
                     InlineKeyboardButton.WithCallbackData(u.FirstName, "NONE"),
                     InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
-                    InlineKeyboardButton.WithCallbackData("🟢", $"SCORE:{u.ChatId}:1"),
-                    InlineKeyboardButton.WithCallbackData("🔴", $"SCORE:{u.ChatId}:-1")
+                    InlineKeyboardButton.WithCallbackData("🟢", $"SCORE:{u.TelegramUserChatId}:1"),
+                    InlineKeyboardButton.WithCallbackData("🔴", $"SCORE:{u.TelegramUserChatId}:-1")
                 });
             }
+
+            rows.Add(new List<InlineKeyboardButton>
+            {
+                InlineKeyboardButton.WithCallbackData("⬅️", $"PAGE:{page-1}"),
+                InlineKeyboardButton.WithCallbackData($"📄 {page+1}", "NONE"),
+                InlineKeyboardButton.WithCallbackData("➡️", $"PAGE:{page+1}")
+            });
 
             return new InlineKeyboardMarkup(rows);
         }
 
         private async Task UpdateUserScoreAndRefreshList(CallbackQuery callback, long chatId, int delta)
         {
-            var user = await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.ChatId == chatId);
+            var user = await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
             
             if (user == null)
             {
