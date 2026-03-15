@@ -42,6 +42,9 @@ namespace LineUpBot.Service.Services
 
             var chatId = update.Message.Chat.Id;
 
+            var user = await _dbContext.BotUsers
+                             .FirstOrDefaultAsync(x => x.ChatId == chatId);
+
             switch (update.Message.Text)
             {
                 case "/start":
@@ -52,10 +55,39 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case "/team":
-                    await GenerateBalancedTeams(chatId);
-                    break;
 
+                    user = user ?? await _dbContext.BotUsers
+                       .FirstOrDefaultAsync(x => x.ChatId == chatId);
+
+                    if (user != null)
+                    {
+                        user.NextCommand = "TEAM_SIZE";
+                        await _dbContext.SaveChangesAsync();
+                    }
+
+                    break;             
             }
+
+            user = user ?? await _dbContext.BotUsers
+                              .FirstOrDefaultAsync(x => x.ChatId == chatId);
+
+            if (user?.NextCommand == "TEAM_SIZE")
+            {
+                if (int.TryParse(update.Message.Text, out int teamSize))
+                {
+                    user.NextCommand = null;
+                    await _dbContext.SaveChangesAsync();
+
+                    await GenerateBalancedTeams(chatId, teamSize);
+                }
+                else
+                {
+                    await _botClient.SendMessage(chatId, "Bitta jamoada nechta o'yinchi bo'lishini kiriting.");
+                }
+
+                return;
+            }
+
         }
 
         private async Task HandleCallback(CallbackQuery callback)
@@ -365,41 +397,58 @@ namespace LineUpBot.Service.Services
             }
         }
 
-        public async Task GenerateBalancedTeams(long chatId)
+        public async Task GenerateBalancedTeams(long chatId, int usersPerTeam)
         {
+            var rnd = new Random();
+
+            // 1️⃣ Userlarni olish
             var users = await _dbContext.BotUsers.ToListAsync();
 
-            int usersPerTeam = 4;
-            int numberOfTeams = users.Count / usersPerTeam;
+            // 2️⃣ Random aralashtirish
+            users = users.OrderBy(x => Guid.NewGuid()).ToList();
 
-            if (numberOfTeams == 0) return;
-
-            // Random aralashtirish
-            var rnd = new Random();
-            users = users.OrderBy(x => rnd.Next()).ToList();
-
-            // Score bo'yicha saralash
+            // 3️⃣ Score bo'yicha saralash (balans uchun)
             users = users.OrderByDescending(u => u.Score).ToList();
 
-            // Jamoalar
+            int numberOfTeams = users.Count / usersPerTeam;
+            int usersToUse = numberOfTeams * usersPerTeam;
+
+            // 4️⃣ Eng kuchli userlarni ishlatamiz
+            var selectedUsers = users.Take(usersToUse).ToList();
+            var remainingUsers = users.Skip(usersToUse)
+                                      .OrderBy(u => u.Score)
+                                      .ToList();
+
+            // 5️⃣ Jamoalar
             var teams = new List<List<BotUser>>();
             var teamScores = new int[numberOfTeams];
 
             for (int i = 0; i < numberOfTeams; i++)
                 teams.Add(new List<BotUser>());
 
-            foreach (var user in users)
+            // 6️⃣ Balanslash algoritmi
+            foreach (var user in selectedUsers)
             {
-                // Eng kam balli jamoani topamiz
-                int teamIndex = Array.IndexOf(teamScores, teamScores.Min());
+                int bestTeam = -1;
+                int minScore = int.MaxValue;
 
-                if (teams[teamIndex].Count >= usersPerTeam)
-                    continue;
+                for (int i = 0; i < numberOfTeams; i++)
+                {
+                    if (teams[i].Count >= usersPerTeam)
+                        continue;
 
-                teams[teamIndex].Add(user);
-                teamScores[teamIndex] += user.Score;
+                    if (teamScores[i] < minScore)
+                    {
+                        minScore = teamScores[i];
+                        bestTeam = i;
+                    }
+                }
+
+                teams[bestTeam].Add(user);
+                teamScores[bestTeam] += user.Score;
             }
 
+            // 7️⃣ Natija chiqarish
             var sb = new StringBuilder();
             sb.AppendLine("<b>🎭 Teng kuchli jamoalar:</b>\n");
 
@@ -408,11 +457,18 @@ namespace LineUpBot.Service.Services
                 sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {teamScores[i]})</b>");
 
                 foreach (var u in teams[i])
-                {
                     sb.AppendLine($" └ {u.FirstName} ({u.Score})");
-                }
 
                 sb.AppendLine();
+            }
+
+            // 8️⃣ Ortiqcha userlar (eng past score)
+            if (remainingUsers.Any())
+            {
+                sb.AppendLine("<b>❌ Bu safar tushmaganlar:</b>");
+
+                foreach (var u in remainingUsers)
+                    sb.AppendLine($" └ {u.FirstName} ({u.Score})");
             }
 
             await _botClient.SendMessage(
