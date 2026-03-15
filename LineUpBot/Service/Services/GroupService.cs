@@ -12,53 +12,26 @@ namespace LineUpBot.Service.Services
         {
             _dbContext = dbContext;
         }
-        public async Task<int> CreateGroup(int surveyId)
+        public async Task<int> CreateTelegramGroup(long groupChatId)
         {
-            var group = await _dbContext.Groups
-                              .FirstOrDefaultAsync(g => g.SurveyId == surveyId && g.Active);
+            var group = await _dbContext.TelegramGroups
+                              .FirstOrDefaultAsync(g => g.TelegramGroupChatId == groupChatId && g.Active);
 
             if (group != null)
                 return group.Id;
 
-            // 2️⃣ Yo‘q bo‘lsa — yangi yaratamiz
-            var survey = await _dbContext.Surveys.FindAsync(surveyId);
-
-            var newGroup = new Group
+            var newGroup = new TelegramGroup
             {
-                Name = $"⚽ Futbol ({DateTime.Now:dd.MM.yyyy})",
-                SurveyId = surveyId,
-                Active = true
+                 Name = $"{groupChatId}",
+                 TelegramGroupChatId = groupChatId,
+                 Active = true,
+                 CreatedDate = DateTime.UtcNow                
             };
 
-            _dbContext.Groups.Add(newGroup);
+            await _dbContext.TelegramGroups.AddAsync(newGroup);
             await _dbContext.SaveChangesAsync();
 
             return newGroup.Id;
         }
-
-        public async Task AddUserToGroup(long telegramUserId, int groupId, bool isGoing)
-        {
-            var groupUser = await _dbContext.GroupUsers.FirstOrDefaultAsync(x =>
-                x.GroupId == groupId &&
-                x.ChatId == telegramUserId);
-
-            if (groupUser != null)
-            { 
-                groupUser.Active = isGoing;
-                _dbContext.GroupUsers.Update(groupUser);
-            }
-            else
-            {
-                _dbContext.GroupUsers.Add(new GroupUser
-                {
-                    GroupId = groupId,
-                    ChatId = telegramUserId,
-                    Active = isGoing
-                });
-            }
-
-            await _dbContext.SaveChangesAsync();
-        }
-
     }
 }
