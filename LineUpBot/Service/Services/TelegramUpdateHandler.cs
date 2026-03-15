@@ -32,7 +32,7 @@ namespace LineUpBot.Service.Services
         }
         public async Task HandleAsync(Update update)
         {
-            await ClearSurveysAsync();
+            //await ClearSurveysAsync();
             if (update.CallbackQuery != null)
             {
                 await HandleCallback(update.CallbackQuery);
