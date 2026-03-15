@@ -43,51 +43,56 @@ namespace LineUpBot.Service.Services
             var chatId = update.Message.Chat.Id;
 
             var user = await _dbContext.BotUsers
-                             .FirstOrDefaultAsync(x => x.ChatId == chatId);
+                        .FirstOrDefaultAsync(x => x.ChatId == chatId);
+
+            if (user?.NextCommand == "CREATE_TEAM")
+            {
+                await CreateTeam(update, user);
+                return;
+            }
 
             switch (update.Message.Text)
             {
                 case "/start":
                     await _botMenuService.SendMainMenu(chatId);
                     break;
+
                 case "/users":
                     await SendUsersList(chatId);
                     break;
 
                 case "/team":
-
                     user = user ?? await _dbContext.BotUsers
-                       .FirstOrDefaultAsync(x => x.ChatId == chatId);
-
-                    if (user != null)
-                    {
-                        user.NextCommand = "TEAM_SIZE";
-                        await _dbContext.SaveChangesAsync();
-                    }
-
-                    break;             
-            }
-
-            user = user ?? await _dbContext.BotUsers
                               .FirstOrDefaultAsync(x => x.ChatId == chatId);
 
-            if (user?.NextCommand == "TEAM_SIZE")
-            {
-                if (int.TryParse(update.Message.Text, out int teamSize))
-                {
-                    user.NextCommand = null;
+                    user.NextCommand = "CREATE_TEAM";
                     await _dbContext.SaveChangesAsync();
 
-                    await GenerateBalancedTeams(chatId, teamSize);
-                }
-                else
-                {
-                    await _botClient.SendMessage(chatId, "Bitta jamoada nechta o'yinchi bo'lishini kiriting.");
-                }
-
-                return;
+                    await _botClient.SendMessage(
+                        chatId,
+                        "Bitta jamoada nechta o'yinchi bo'lishini kiriting."
+                    );
+                    break;             
             }
+        }
 
+
+        private async Task CreateTeam(Update update,BotUser user)
+        {
+            if (int.TryParse(update.Message.Text, out int teamSize))
+            {
+                user.NextCommand = null;
+                await _dbContext.SaveChangesAsync();
+
+                await GenerateBalancedTeams(user.ChatId, teamSize);
+            }
+            else
+            {
+                await _botClient.SendMessage(
+                    user.ChatId,
+                    "Iltimos faqat raqam kiriting. Masalan: 5"
+                );
+            }
         }
 
         private async Task HandleCallback(CallbackQuery callback)
