@@ -71,9 +71,18 @@ namespace LineUpBot.Service.Services
             return user;
         }
 
-        public async Task<BotUser> GetByUserChatId(long chatId)
+        public async Task<BotUser?> GetByUserChatId(long chatId)
         {
-            return await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
+            try
+            {
+
+               return await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public async Task<List<BotUser>> GetUsersBySurveyIdAsync(int surveyId)

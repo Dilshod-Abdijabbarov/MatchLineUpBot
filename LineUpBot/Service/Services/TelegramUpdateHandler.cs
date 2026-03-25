@@ -32,7 +32,6 @@ namespace LineUpBot.Service.Services
         }
         public async Task HandleAsync(Update update)
         {
-            //await ClearSurveysAsync();
             if (update.CallbackQuery != null)
             {
                 await HandleCallback(update.CallbackQuery);
@@ -79,16 +78,32 @@ namespace LineUpBot.Service.Services
 
                     await _botClient.SendMessage(
                         chatId,
-                        "Bitta jamoada nechta o'yinchi bo'lishini kiriting."
+                        "Bitta jamoada nechta o'yinchi bo'lishini kiriting!"
                     );
                     break;
 
                 case string s when s.StartsWith("/addadmin"):
-                    await AddAdminAsync(chatId, user, update.Message.Text);
+                    if (user?.UserRole == UserRole.SuperAdmin)
+                        await AddAdminAsync(chatId, user, update.Message.Text);
+                    else
+                    {
+                        await _botClient.SendMessage(
+                            chatId,
+                            "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
+                        );
+                    }
                     break;
 
                 case string s when s.StartsWith("/setup_"):
-                    await SetInitialSuperAdmin(chatId, user, s);
+                    if(user?.UserRole == UserRole.SuperAdmin)
+                        await SetInitialSuperAdmin(chatId, user, s);
+                    else
+                    {
+                        await _botClient.SendMessage(
+                            chatId,
+                            "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
+                        );
+                    }
                     break;
 
                 default:
@@ -99,22 +114,6 @@ namespace LineUpBot.Service.Services
                     break;
             }
         }
-
-        public async Task ClearSurveysAsync()
-        {
-            // 1. Barcha so'rovnomalarni yuklab olamiz
-            var surveys = await _dbContext.Surveys.ToListAsync();
-
-            if (surveys.Any())
-            {
-                // 2. O'chirishga belgilaymiz (Cascade o'rnatilgan bo'lsa, SurveyUsers ham o'chadi)
-                _dbContext.Surveys.RemoveRange(surveys);
-
-                // 3. Bazaga saqlaymiz
-                await _dbContext.SaveChangesAsync();
-            }
-        }
-
 
         private async Task CreateTeam(Update update,BotUser user)
         {
@@ -144,7 +143,7 @@ namespace LineUpBot.Service.Services
                     return;
                 }
 
-                // Bu o'sha xabarni ichida turgan chat (guruh yoki shaxsiy) ID-si
+                // (guruh yoki shaxsiy) ID-si
                 long telegramGroupChatId = callback.Message.Chat.Id;
 
                 // Tugmani bosgan foydalanuvchi ID-si
@@ -152,6 +151,8 @@ namespace LineUpBot.Service.Services
 
                 if(userChatId != 0)
                      await _userService.CreateUserAsync(callback.From,telegramGroupChatId);
+
+                var user = await _userService.GetByUserChatId(userChatId);
 
                 var parts = callback.Data.Split(':');
                 var action = parts[0];
@@ -177,19 +178,32 @@ namespace LineUpBot.Service.Services
                         break;
 
                     case "SCORE_PLUS":
-                        // parts[1] - UserId, parts[2] - Joriy sahifa raqami
-                        if (parts.Length > 2)
+                        if (parts.Length > 2 && (user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin))
                         {
                             int currentPage = int.Parse(parts[2]);
                             await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), 2, currentPage);
                         }
+                        else
+                        {
+                            await _botClient.SendMessage(
+                                telegramGroupChatId,
+                                "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
+                            );
+                        }
                         break;
 
                     case "SCORE_MINUS":
-                        if (parts.Length > 2)
+                        if (parts.Length > 2 && (user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin))
                         {
                             int currentPage = int.Parse(parts[2]);
-                            await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), -2, currentPage);
+                            await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), -1, currentPage);
+                        }
+                        else
+                        {
+                            await _botClient.SendMessage(
+                                telegramGroupChatId,
+                                "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
+                            );
                         }
                         break;
 
@@ -202,19 +216,26 @@ namespace LineUpBot.Service.Services
                         break;
 
                     case "SCORE":
-                        if (parts.Length > 3)
+                        if (parts.Length > 3 && (user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin))
                         {
                             long targetId = long.Parse(parts[1]);
                             int delta = int.Parse(parts[2]);
-                            int page = int.Parse(parts[3]); // Sahifa raqami
+                            int page = int.Parse(parts[3]);
                             await UpdateUserScoreAndRefreshList(callback, targetId, delta, page);
                         }
+                        else
+                        {
+                            await _botClient.SendMessage(
+                                telegramGroupChatId,
+                                "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
+                            );
+                        }
+
                         break;
                 }
             }
             catch (Exception ex)
             {
-                // Telegramni yopib qo‘yamiz
                 await _botClient.AnswerCallbackQuery(
                     callback.Id,
                     "❌ Xatolik yuz berdi",
@@ -331,7 +352,6 @@ namespace LineUpBot.Service.Services
         {
             var sb = new StringBuilder();
 
-            // Sarlavha
             sb.AppendLine("<b>⚽ FUTBOL ⚽</b>");
             sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
             sb.AppendLine(
@@ -339,7 +359,6 @@ namespace LineUpBot.Service.Services
                 $"<b>⏰ Soat: 19:00</b>\n"
             );
 
-            // Ro'yxat sarlavhasi
             sb.AppendLine("<b>❓ Futbolga kim boradi?</b>");
             sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
             sb.AppendLine("<b>📋 Boradiganlar ro‘yxati:</b>");
@@ -378,7 +397,6 @@ namespace LineUpBot.Service.Services
             }
             else if (!string.IsNullOrEmpty(user.FirstName))
             {
-                // Faqat ism
                 return System.Net.WebUtility.HtmlEncode(user.FirstName);
             }
 
@@ -396,7 +414,6 @@ namespace LineUpBot.Service.Services
                 .Select(x=>x.BotUsers)
                 .FirstOrDefaultAsync();
 
-            // Jami foydalanuvchilar sonini aniqlash (Pagination tugmalari uchun)
             var totalUsers = groupUsers.Count();
 
              var users = groupUsers
@@ -416,7 +433,6 @@ namespace LineUpBot.Service.Services
             }
             else
             {
-                // /users yozilganda yangi xabar yuborish
                 await _botClient.SendMessage(chatId, text,
                     parseMode: ParseMode.Html, replyMarkup: keyboard);
             }
@@ -434,12 +450,10 @@ namespace LineUpBot.Service.Services
 
                 rows.Add(new List<InlineKeyboardButton>
         {
-            InlineKeyboardButton.WithCallbackData(rank.ToString(), "NONE"),
-            InlineKeyboardButton.WithCallbackData(u.FirstName ?? "User", "NONE"),
+            InlineKeyboardButton.WithCallbackData(rank.ToString()+"." + u.FirstName ?? "User", "NONE"),
             InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
-            // Sahifani eslab qolish uchun page raqamini ham callbackga qo'shamiz
             InlineKeyboardButton.WithCallbackData("➕", $"SCORE:{u.TelegramUserChatId}:2:{page}"),
-            InlineKeyboardButton.WithCallbackData("➖", $"SCORE:{u.TelegramUserChatId}:-2:{page}")
+            InlineKeyboardButton.WithCallbackData("➖", $"SCORE:{u.TelegramUserChatId}:-1:{page}")
         });
             }
 
@@ -474,8 +488,10 @@ namespace LineUpBot.Service.Services
                 return;
             }
 
-            // 2. Ballni yangilash va saqlash
             user.Score += delta;
+            if (user.Score <= 0)
+                user.Score = 0;
+
             await _dbContext.SaveChangesAsync();
 
             long telegramGroupChatId = callback.Message.Chat.Id;
@@ -508,65 +524,50 @@ namespace LineUpBot.Service.Services
             }
             catch (Exception)
             {
-                // "Message is not modified" xatosini oldini olish
                 await _botClient.AnswerCallbackQuery(callback.Id);
             }
         }
 
-        public async Task GenerateBalancedTeams(long chatId, int usersPerTeam)
+        public async Task GenerateBalancedTeams(long chatId, int membersCount)
         {
-            var rnd = new Random();
             var currentWeek = await _botMenuService.GetWeekNumber();
 
             var survey = await _dbContext.Surveys
-                .Where(x=>x.TelegramGroup.TelegramGroupChatId == chatId && x.IsActive && x.CurrentWeek == currentWeek)
+                .Where(x => x.TelegramGroup.TelegramGroupChatId == chatId && x.IsActive && x.CurrentWeek == currentWeek)
                 .FirstOrDefaultAsync();
 
             var users = await _dbContext.SurveyBotUsers
-                .Where(x=>x.SurveyId == survey.Id)
-                .Include(x=>x.BotUser).Select(x=>x.BotUser)
+                .Where(x => x.SurveyId == survey.Id && x.Active)
+                .Include(x => x.BotUser)
+                .Select(x => x.BotUser)
+                .OrderByDescending(x=>x.Score)
                 .ToListAsync();
 
-            users = users.OrderBy(x => Guid.NewGuid()).ToList();
+            int numberOfTeams = users.Count / membersCount;
+            int usersToUse = numberOfTeams * membersCount;
 
-            // Score bo'yicha saralash (balans uchun)
-            users = users.OrderByDescending(u => u.Score).ToList();
-
-            int numberOfTeams = users.Count / usersPerTeam;
-            int usersToUse = numberOfTeams * usersPerTeam;
-
-            // Eng kuchli userlarni ishlatamiz
             var selectedUsers = users.Take(usersToUse).ToList();
-            var remainingUsers = users.Skip(usersToUse)
-                                      .OrderBy(u => u.Score)
-                                      .ToList();
+            var remainingUsers = users.Skip(usersToUse).ToList();
 
-            // Jamoalar
             var teams = new List<List<BotUser>>();
-            var teamScores = new int[numberOfTeams];
+            for (int i = 0; i < numberOfTeams; i++) teams.Add(new List<BotUser>());
 
-            for (int i = 0; i < numberOfTeams; i++)
-                teams.Add(new List<BotUser>());
+            var pool = users.Take(usersToUse).ToList();
 
-            foreach (var user in selectedUsers)
+            for (int i = 0; i < membersCount; i++)
             {
-                int bestTeam = -1;
-                int minScore = int.MaxValue;
+                var topBatch = pool.Take(numberOfTeams).ToList();
 
-                for (int i = 0; i < numberOfTeams; i++)
+                for (int j = 0; j < numberOfTeams; j++)
                 {
-                    if (teams[i].Count >= usersPerTeam)
-                        continue;
-
-                    if (teamScores[i] < minScore)
+                    var tempUser = topBatch.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+                    if (tempUser != null)
                     {
-                        minScore = teamScores[i];
-                        bestTeam = i;
+                        teams[j].Add(tempUser);
+                        topBatch.Remove(tempUser);
+                        pool.Remove(tempUser);
                     }
                 }
-
-                teams[bestTeam].Add(user);
-                teamScores[bestTeam] += user.Score;
             }
 
             var sb = new StringBuilder();
@@ -574,15 +575,18 @@ namespace LineUpBot.Service.Services
 
             for (int i = 0; i < teams.Count; i++)
             {
-                sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {teamScores[i]})</b>");
+                int totalScore = teams[i].Sum(u => u.Score);
+
+                sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {totalScore})</b>");
 
                 foreach (var u in teams[i])
-                    sb.AppendLine($" └ {u.FirstName}");
+                {
+                    sb.AppendLine($" └ {u.FirstName}"); //({u.Score})");
+                }
 
                 sb.AppendLine();
             }
 
-            // Ortiqcha userlar (eng past score)
             if (remainingUsers.Any())
             {
                 sb.AppendLine("<b>❌ Qo'shimcha jamoa:</b>");
@@ -596,6 +600,7 @@ namespace LineUpBot.Service.Services
                 text: sb.ToString(),
                 parseMode: ParseMode.Html
             );
+
         }
 
 
@@ -647,7 +652,5 @@ namespace LineUpBot.Service.Services
                 await _botClient.SendMessage(chatId, "✅ Tizim aniqlandi. Siz endi **SuperAdmin**siz!", parseMode: ParseMode.Markdown);
             }
         }
-
-
     }
 }
