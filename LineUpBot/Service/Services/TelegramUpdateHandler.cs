@@ -514,13 +514,15 @@ namespace LineUpBot.Service.Services
                 .ThenBy(x=> Guid.NewGuid())
                 .ToListAsync();
 
-            users = await _dbContext.BotUsers.OrderByDescending(x=>x.Score).ToListAsync();
             int membersCount = users.Count / numberOfTeams;
 
             var teams = new List<List<BotUser>>();
             for (int i = 0; i < numberOfTeams; i++) teams.Add(new List<BotUser>());
 
-          var usersGroup = users.GroupBy(x=>x.Score).OrderByDescending(x=>x.Key).ToList();
+          var usersGroup = users.GroupBy(x=>x.Score)
+                .OrderByDescending(x=>x.Key)
+                .ThenBy(x=>x.Sum(u=>u.Score))
+                .ToList();
 
             while (usersGroup.Count > 0)
             {
