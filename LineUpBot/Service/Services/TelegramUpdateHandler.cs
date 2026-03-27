@@ -526,7 +526,8 @@ namespace LineUpBot.Service.Services
             {
                 var currentGroup = usersGroup.First();
                 var groupUsers = currentGroup.ToList();
-                for (int i = 0; i < groupUsers.Count;i++)
+                int groupUserCount = groupUsers.Count;
+                for (int i = 0; i < groupUserCount;i++)
                 {
                     var user = groupUsers.OrderBy(x=> Guid.NewGuid()).First();
 
