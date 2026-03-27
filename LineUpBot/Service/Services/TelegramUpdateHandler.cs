@@ -60,13 +60,7 @@ namespace LineUpBot.Service.Services
                 case "/users":            
                     if(user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
                         await GetUsersList(chatId, 0);
-                    else
-                    {
-                        await _botClient.SendMessage(
-                            chatId,
-                            "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
-                        );
-                    }
+                    
                     break;
 
                 case "/team":
@@ -78,40 +72,34 @@ namespace LineUpBot.Service.Services
 
                     await _botClient.SendMessage(
                         chatId,
-                        "Bitta jamoada nechta o'yinchi bo'lishini kiriting!"
+                        "Jamoalar sonini kiriting:"
                     );
                     break;
 
                 case string s when s.StartsWith("/addadmin"):
                     if (user?.UserRole == UserRole.SuperAdmin)
                         await AddAdminAsync(chatId, user, update.Message.Text);
-                    else
-                    {
-                        await _botClient.SendMessage(
-                            chatId,
-                            "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
-                        );
-                    }
+                    
                     break;
 
                 case string s when s.StartsWith("/setup_"):
                     if(user?.UserRole == UserRole.SuperAdmin)
                         await SetInitialSuperAdmin(chatId, user, s);
-                    else
-                    {
-                        await _botClient.SendMessage(
-                            chatId,
-                            "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
-                        );
-                    }
+                    
                     break;
 
                 default:
-                    await _botClient.SendMessage(
-                        chatId,
-                        "Bunday buyruq mavjud emas."
-                    );
+                    // Faqat shaxsiy chat bo'lsa, xato haqida xabar chiqarsin
+                    if (update.Message.Chat.Type == ChatType.Private)
+                    {
+                        await _botClient.SendMessage(
+                            chatId,
+                            "Bunday buyruq mavjud emas."
+                        );
+                    }
+                    // Guruhda bo'lsa, hech narsa yubormasdan shunchaki break bo'ladi
                     break;
+
             }
         }
 
@@ -183,13 +171,7 @@ namespace LineUpBot.Service.Services
                             int currentPage = int.Parse(parts[2]);
                             await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), 2, currentPage);
                         }
-                        else
-                        {
-                            await _botClient.SendMessage(
-                                telegramGroupChatId,
-                                "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
-                            );
-                        }
+                        
                         break;
 
                     case "SCORE_MINUS":
@@ -198,13 +180,7 @@ namespace LineUpBot.Service.Services
                             int currentPage = int.Parse(parts[2]);
                             await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), -1, currentPage);
                         }
-                        else
-                        {
-                            await _botClient.SendMessage(
-                                telegramGroupChatId,
-                                "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
-                            );
-                        }
+                       
                         break;
 
                     case "PAGE":
@@ -223,13 +199,7 @@ namespace LineUpBot.Service.Services
                             int page = int.Parse(parts[3]);
                             await UpdateUserScoreAndRefreshList(callback, targetId, delta, page);
                         }
-                        else
-                        {
-                            await _botClient.SendMessage(
-                                telegramGroupChatId,
-                                "Sizda ushbu buyruqdan foydalanish huquqi yo‘q."
-                            );
-                        }
+                       
 
                         break;
                 }
@@ -450,7 +420,7 @@ namespace LineUpBot.Service.Services
 
                 rows.Add(new List<InlineKeyboardButton>
         {
-            InlineKeyboardButton.WithCallbackData(rank.ToString()+"." + u.FirstName ?? "User", "NONE"),
+            InlineKeyboardButton.WithCallbackData($"{rank}. {u.FirstName ?? u.LastName} {u.UserName ?? ""}", "NONE"),
             InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
             InlineKeyboardButton.WithCallbackData("➕", $"SCORE:{u.TelegramUserChatId}:2:{page}"),
             InlineKeyboardButton.WithCallbackData("➖", $"SCORE:{u.TelegramUserChatId}:-1:{page}")
@@ -528,7 +498,7 @@ namespace LineUpBot.Service.Services
             }
         }
 
-        public async Task GenerateBalancedTeams(long chatId, int membersCount)
+        public async Task GenerateBalancedTeams(long chatId, int numberOfTeams)
         {
             var currentWeek = await _botMenuService.GetWeekNumber();
 
@@ -541,34 +511,37 @@ namespace LineUpBot.Service.Services
                 .Include(x => x.BotUser)
                 .Select(x => x.BotUser)
                 .OrderByDescending(x=>x.Score)
+                .ThenBy(x=> Guid.NewGuid())
                 .ToListAsync();
 
-            int numberOfTeams = users.Count / membersCount;
-            int usersToUse = numberOfTeams * membersCount;
-
-            var selectedUsers = users.Take(usersToUse).ToList();
-            var remainingUsers = users.Skip(usersToUse).ToList();
+            users = await _dbContext.BotUsers.OrderByDescending(x=>x.Score).ToListAsync();
+            int membersCount = users.Count / numberOfTeams;
 
             var teams = new List<List<BotUser>>();
             for (int i = 0; i < numberOfTeams; i++) teams.Add(new List<BotUser>());
 
-            var pool = users.Take(usersToUse).ToList();
+          var usersGroup = users.GroupBy(x=>x.Score).OrderByDescending(x=>x.Key).ToList();
 
-            for (int i = 0; i < membersCount; i++)
+            while (usersGroup.Count > 0)
             {
-                var topBatch = pool.Take(numberOfTeams).ToList();
-
-                for (int j = 0; j < numberOfTeams; j++)
+                var currentGroup = usersGroup.First();
+                var groupUsers = currentGroup.ToList();
+                for (int i = 0; i < groupUsers.Count;i++)
                 {
-                    var tempUser = topBatch.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-                    if (tempUser != null)
-                    {
-                        teams[j].Add(tempUser);
-                        topBatch.Remove(tempUser);
-                        pool.Remove(tempUser);
-                    }
+                    var user = groupUsers.OrderBy(x=> Guid.NewGuid()).First();
+
+                    var currentTeam = teams
+                        .OrderBy(x => x.Count)
+                        .ThenBy(x => x.Sum(x => x.Score))
+                        .ThenBy(x=> Guid.NewGuid())
+                        .First();
+
+                    currentTeam.Add(user);
+                    groupUsers.Remove(user);
                 }
+                usersGroup.Remove(currentGroup);
             }
+
 
             var sb = new StringBuilder();
             sb.AppendLine("<b>🎭 Teng kuchli jamoalar:</b>\n");
@@ -581,19 +554,12 @@ namespace LineUpBot.Service.Services
 
                 foreach (var u in teams[i])
                 {
-                    sb.AppendLine($" └ {u.FirstName}"); //({u.Score})");
+                    sb.AppendLine($" └ {u.FirstName} {u.UserName}"); //({u.Score})");
                 }
 
                 sb.AppendLine();
             }
 
-            if (remainingUsers.Any())
-            {
-                sb.AppendLine("<b>❌ Qo'shimcha jamoa:</b>");
-
-                foreach (var u in remainingUsers)
-                    sb.AppendLine($" └ {u.FirstName}");
-            }
 
             await _botClient.SendMessage(
                 chatId: chatId,
