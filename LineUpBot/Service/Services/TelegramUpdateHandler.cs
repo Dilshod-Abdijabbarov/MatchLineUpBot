@@ -60,7 +60,12 @@ namespace LineUpBot.Service.Services
                 case "/users":            
                     if(user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
                         await GetUsersList(chatId, 0);
-                    
+
+                    await _botClient.SendMessage(
+                        chatId,
+                        "Tizimda xatolik..."
+                    );
+
                     break;
 
                 case "/team":
