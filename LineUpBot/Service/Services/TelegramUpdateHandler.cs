@@ -61,11 +61,6 @@ namespace LineUpBot.Service.Services
                     if(user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
                         await GetUsersList(chatId, 0);
 
-                    await _botClient.SendMessage(
-                        chatId,
-                        "Tizimda xatolik..."
-                    );
-
                     break;
 
                 case "/team":
@@ -82,7 +77,7 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case string s when s.StartsWith("/addadmin"):
-                    if (user?.UserRole == UserRole.SuperAdmin)
+                    //if (user?.UserRole == UserRole.SuperAdmin)
                         await AddAdminAsync(chatId, user, update.Message.Text);
                     
                     break;
