@@ -57,7 +57,7 @@ namespace LineUpBot.Service.Services
                     CreatedDate = DateTime.UtcNow,
                 };
 
-                group.BotUsers.Add(user);
+                group?.BotUsers.Add(user);
                 await _dbContext.BotUsers.AddAsync(user);
                 await _dbContext.SaveChangesAsync();
             }
@@ -75,12 +75,11 @@ namespace LineUpBot.Service.Services
         {
             try
             {
-
                return await _dbContext.BotUsers.FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

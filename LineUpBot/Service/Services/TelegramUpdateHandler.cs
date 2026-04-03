@@ -42,7 +42,7 @@ namespace LineUpBot.Service.Services
 
             if (update.Message?.From == null) return;
 
-            var chatId = update.Message.Chat.Id;
+            var chatId = update.Message.Chat?.Id ?? 0;
 
             var user = await _userService.GetByUserChatId(update.Message.From.Id);
 
@@ -171,7 +171,7 @@ namespace LineUpBot.Service.Services
                         break;
 
                     case "SCORE_PLUS":
-                        if (parts.Length > 2 && (user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin))
+                        if (parts.Length > 2 && (user?.UserRole == UserRole.Admin || user?.UserRole == UserRole.SuperAdmin))
                         {
                             int currentPage = int.Parse(parts[2]);
                             await UpdateUserScoreAndRefreshList(callback, long.Parse(parts[1]), 2, currentPage);
