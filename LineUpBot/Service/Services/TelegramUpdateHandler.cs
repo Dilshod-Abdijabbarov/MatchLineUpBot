@@ -388,9 +388,9 @@ namespace LineUpBot.Service.Services
                 .Select(x=>x.BotUsers)
                 .FirstOrDefaultAsync();
 
-            var totalUsers = groupUsers.Count();
+            var totalUsers = groupUsers != null ? groupUsers.Count() : 0;    
 
-             var users = groupUsers
+             var users = groupUsers?
                 .OrderByDescending(x => x.Score)
                 .Skip(page * pageSize)
                 .Take(pageSize)
@@ -423,12 +423,12 @@ namespace LineUpBot.Service.Services
                 var rank = (page * pageSize) + i + 1;
 
                 rows.Add(new List<InlineKeyboardButton>
-        {
-            InlineKeyboardButton.WithCallbackData($"{rank}. {u.FirstName ?? u.LastName} {u.UserName ?? ""}", "NONE"),
-            InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
-            InlineKeyboardButton.WithCallbackData("➕", $"SCORE:{u.TelegramUserChatId}:2:{page}"),
-            InlineKeyboardButton.WithCallbackData("➖", $"SCORE:{u.TelegramUserChatId}:-1:{page}")
-        });
+                {
+                    InlineKeyboardButton.WithCallbackData($"{rank}. {u.FirstName ?? u.LastName} {u.UserName ?? ""}", "NONE"),
+                    InlineKeyboardButton.WithCallbackData($"⭐ {u.Score}", "NONE"),
+                    InlineKeyboardButton.WithCallbackData("➕", $"SCORE:{u.TelegramUserChatId}:2:{page}"),
+                    InlineKeyboardButton.WithCallbackData("➖", $"SCORE:{u.TelegramUserChatId}:-1:{page}")
+                });
             }
 
             // Navigatsiya tugmalari (⬅️ 📄 ➡️)
