@@ -70,7 +70,7 @@ namespace LineUpBot.Service.Services
                         user = user ?? await _dbContext.BotUsers
                                .FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
 
-                        user?.NextCommand = "CREATE_TEAM";
+                        user.NextCommand = "CREATE_TEAM";
                         await _dbContext.SaveChangesAsync();
 
                         await _botClient.SendMessage(
