@@ -64,16 +64,20 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case "/team":
-                    user = user ?? await _dbContext.BotUsers
-                              .FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
+                    if (user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
+                    {
+                        user = user ?? await _dbContext.BotUsers
+                               .FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
 
-                    user.NextCommand = "CREATE_TEAM";
-                    await _dbContext.SaveChangesAsync();
+                        user.NextCommand = "CREATE_TEAM";
+                        await _dbContext.SaveChangesAsync();
 
-                    await _botClient.SendMessage(
-                        chatId,
-                        "Jamoalar sonini kiriting:"
-                    );
+                        await _botClient.SendMessage(
+                            chatId,
+                            "Jamoalar sonini kiriting:"
+                        );
+                    }
+
                     break;
 
                 case string s when s.StartsWith("/addadmin"):
@@ -83,7 +87,7 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case string s when s.StartsWith("/setup_"):
-                    //if(user?.UserRole == UserRole.SuperAdmin)
+                    if(user?.UserRole == UserRole.SuperAdmin)
                         await SetInitialSuperAdmin(chatId, user, s);
                     
                     break;
@@ -467,7 +471,7 @@ namespace LineUpBot.Service.Services
             long telegramGroupChatId = callback.Message.Chat.Id;
 
             var groupUsers = await _dbContext.TelegramGroups
-                .Where(x => x.TelegramGroupChatId == telegramGroupChatId)
+                .Where(x => x.TelegramGroupChatId == telegramGroupChatId && x.Active)
                 .Include(x => x.BotUsers)
                 .FirstOrDefaultAsync();
 
@@ -547,7 +551,8 @@ namespace LineUpBot.Service.Services
 
 
             var sb = new StringBuilder();
-            sb.AppendLine("<b>🎭 Teng kuchli jamoalar:</b>\n");
+            sb.AppendLine("<b>  Teng kuchli jamoalar:</b>\n");
+            sb.AppendLine("<b>🎭 Agar jamoalarda o'yinchilar soni teng bo'lmasa,\n o'yinchilar navbat bilan almashib o'ynashlari kerak.</b>\n");
 
             for (int i = 0; i < teams.Count; i++)
             {
