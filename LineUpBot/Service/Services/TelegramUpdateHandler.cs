@@ -552,7 +552,10 @@ namespace LineUpBot.Service.Services
 
             var sb = new StringBuilder();
             sb.AppendLine("<b>  Teng kuchli jamoalar:</b>\n");
-            sb.AppendLine("<b>🎭 Agar jamoalarda o'yinchilar soni teng bo'lmasa,\n o'yinchilar navbat bilan almashib o'ynashlari kerak.</b>\n");
+
+            if(users.Count % numberOfTeams != 0)
+                sb.AppendLine("<b>🎭 Agar jamoalarda o'yinchilar soni teng bo'lmasa,\n o'yinchilar navbat bilan almashib o'ynashlari kerak.</b>\n");
+
 
             for (int i = 0; i < teams.Count; i++)
             {
