@@ -326,7 +326,7 @@ namespace LineUpBot.Service.Services
             sb.AppendLine(" ━━━━━━━━━━━━━━━━━━━━━");
             sb.AppendLine(
                 $"<b>📅 Juma, {GetFridayDate()}</b>\n" +
-                $"<b>⏰ Soat: 19:00</b>\n"
+                $"<b>⏰ Soat: 20:00</b>\n"
             );
 
             sb.AppendLine("<b>❓ Futbolga kim boradi?</b>");
@@ -554,10 +554,11 @@ namespace LineUpBot.Service.Services
                 int totalScore = teams[i].Sum(u => u.Score);
 
                 sb.AppendLine($"<b>Jamoa #{i + 1} (Jami ball: {totalScore})</b>");
-
+                int number = 1;
                 foreach (var u in teams[i])
                 {
-                    sb.AppendLine($" └ {u.FirstName} {u.UserName}"); //({u.Score})");
+                    sb.AppendLine($" {number}.{u.FirstName} {u.UserName} {u.Score})");
+                    number++;
                 }
 
                 sb.AppendLine();
