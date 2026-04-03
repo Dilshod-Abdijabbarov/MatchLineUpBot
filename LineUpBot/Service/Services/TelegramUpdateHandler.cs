@@ -395,7 +395,7 @@ namespace LineUpBot.Service.Services
                 .Skip(page * pageSize)
                 .Take(pageSize)
                 .ToList();
-
+            
             var keyboard = BuildUsersKeyboard(users, page, totalUsers, pageSize);
             var text = "🏆 <b>Foydalanuvchilar reytingi</b>";
 
@@ -416,6 +416,17 @@ namespace LineUpBot.Service.Services
         private InlineKeyboardMarkup BuildUsersKeyboard(List<BotUser> users, int page, int total, int pageSize)
         {
             var rows = new List<List<InlineKeyboardButton>>();
+
+            if (users == null || users?.Count == 0)
+            {
+                return new InlineKeyboardMarkup(new[]
+                {
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("❌ Foydalanuvchilar mavjud emas", "NONE")
+                    }
+                });
+            }
 
             for (int i = 0; i < users.Count; i++)
             {
@@ -476,9 +487,9 @@ namespace LineUpBot.Service.Services
                 .FirstOrDefaultAsync();
 
             int pageSize = 10;
-            var totalUsers = groupUsers.BotUsers.Count();
+            var totalUsers = groupUsers != null ? groupUsers.BotUsers.Count() : 0;
 
-            var users = groupUsers.BotUsers
+            var users = groupUsers?.BotUsers
                 .OrderByDescending(x => x.Score)
                 .Skip(currentPage * pageSize)
                 .Take(pageSize)
