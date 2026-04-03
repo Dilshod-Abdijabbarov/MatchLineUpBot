@@ -38,8 +38,9 @@ namespace LineUpBot.Service.Services
                 return;
             }
 
-            if (update.Message?.Text == null)
-                return;
+            if (update.Message?.Text == null) return;
+
+            if (update.Message?.From == null) return;
 
             var chatId = update.Message.Chat.Id;
 
@@ -58,18 +59,18 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case "/users":            
-                    if(user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
+                    if(user?.UserRole == UserRole.Admin || user?.UserRole == UserRole.SuperAdmin)
                         await GetUsersList(chatId, 0);
 
                     break;
 
                 case "/team":
-                    if (user.UserRole == UserRole.Admin || user.UserRole == UserRole.SuperAdmin)
+                    if (user?.UserRole == UserRole.Admin || user?.UserRole == UserRole.SuperAdmin)
                     {
                         user = user ?? await _dbContext.BotUsers
                                .FirstOrDefaultAsync(x => x.TelegramUserChatId == chatId);
 
-                        user.NextCommand = "CREATE_TEAM";
+                        user?.NextCommand = "CREATE_TEAM";
                         await _dbContext.SaveChangesAsync();
 
                         await _botClient.SendMessage(
