@@ -77,13 +77,13 @@ namespace LineUpBot.Service.Services
                     break;
 
                 case string s when s.StartsWith("/addadmin"):
-                    //if (user?.UserRole == UserRole.SuperAdmin)
+                    if (user?.UserRole == UserRole.SuperAdmin)
                         await AddAdminAsync(chatId, user, update.Message.Text);
                     
                     break;
 
                 case string s when s.StartsWith("/setup_"):
-                    if(user?.UserRole == UserRole.SuperAdmin)
+                    //if(user?.UserRole == UserRole.SuperAdmin)
                         await SetInitialSuperAdmin(chatId, user, s);
                     
                     break;
