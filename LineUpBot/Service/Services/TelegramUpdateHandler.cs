@@ -121,7 +121,7 @@ namespace LineUpBot.Service.Services
             {
                 await _botClient.SendMessage(
                     update.Message.Chat.Id,
-                    "Iltimos faqat raqam kiriting. Masalan: 5"
+                    "Iltimos faqat raqam kiriting."
                 );
             }
         }
@@ -232,7 +232,7 @@ namespace LineUpBot.Service.Services
                     CurrentWeek = currentWeek,
                     TelegramGroupId = groupId,
                     IsActive = true,
-                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\nJuma({GetFridayDate()}) kuni soat 19:00 da futbolga kimlar boradi?</b>",
+                    Question = $"<b>⚽ ⚽ ⚽ FUTBOL ⚽ ⚽ ⚽\n({GetFridayDate()}) Juma kuni soat 20:00 da futbolga kimlar boradi?</b>",
                     CreatedDate = DateTime.UtcNow
                 };
 
@@ -272,7 +272,7 @@ namespace LineUpBot.Service.Services
             var today = DateTime.UtcNow;
             int daysUntilFriday = ((int)DayOfWeek.Friday - (int)today.DayOfWeek + 7) % 7;
             var fridayDate = today.AddDays(daysUntilFriday);
-            return fridayDate.ToString("dd.MM.yyyy");
+            return fridayDate.ToString("dd-MMMM yyyy", CultureInfo.InvariantCulture);
         }
         private int GetWeekNumber()
         {
@@ -577,7 +577,7 @@ namespace LineUpBot.Service.Services
                 int number = 1;
                 foreach (var u in teams[i])
                 {
-                    sb.AppendLine($" {number}.{u.FirstName} {u.UserName} {u.Score})");
+                    sb.AppendLine($" {number}.{u.FirstName} [@{u.UserName}] [{u.Score}]");
                     number++;
                 }
 
