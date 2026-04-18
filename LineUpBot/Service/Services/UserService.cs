@@ -109,7 +109,7 @@ namespace LineUpBot.Service.Services
                     string displayName = string.IsNullOrEmpty(userName) ? surveyUser?.BotUser?.FirstName : "@" + userName;
                     await _botClient.SendMessage(
                         chatId: callback.Message.Chat.Id, 
-                        text: $"😳 {displayName} ro'yxatdan chiqdi.\n😕 Yaxshimas lekin!"
+                        text: $"😳 {displayName} ro'yxatdan chiqdingiz.\n😕 Yaxshimas lekin!"
                     );
                 }
 
