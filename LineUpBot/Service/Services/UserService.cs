@@ -107,7 +107,7 @@ namespace LineUpBot.Service.Services
                 {
                     await _botClient.AnswerCallbackQuery(
                         callbackQueryId: callbackId,
-                        text: $"@{surveyUser.BotUser.UserName} yaxshimas lekin!",
+                        text: $"@{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
                         showAlert: false
                     );
                 }
