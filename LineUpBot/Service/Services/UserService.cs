@@ -107,7 +107,7 @@ namespace LineUpBot.Service.Services
                 {
                     await _botClient.SendMessage(
                         chatId: callback.Message.Chat.Id, 
-                        text: $"😳 @{surveyUser?.BotUser?.UserName} yaxshimas lekin! \nRo'yxatdan chiqib ketdingizmi?"
+                        text: $"😳 @{surveyUser?.BotUser?.UserName} yaxshimas lekin! \nRo'yxatdan chiqib ketdingiz 🙄"
                     );
                 }
 
