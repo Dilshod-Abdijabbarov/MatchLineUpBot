@@ -103,7 +103,7 @@ namespace LineUpBot.Service.Services
 
             if (surveyUser != null)
             {
-                if (surveyUser.Active && !isGoing)
+                //if (surveyUser.Active && !isGoing)
                 {
                     await _botClient.AnswerCallbackQuery(
                         callbackQueryId: callbackId,
