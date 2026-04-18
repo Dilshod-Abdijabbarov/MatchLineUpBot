@@ -105,9 +105,11 @@ namespace LineUpBot.Service.Services
             {
                 if (surveyUser.Active && !isGoing)
                 {
+                    string userName = surveyUser?.BotUser?.UserName;
+                    string displayName = string.IsNullOrEmpty(userName) ? surveyUser?.BotUser?.FirstName : "@" + userName;
                     await _botClient.SendMessage(
                         chatId: callback.Message.Chat.Id, 
-                        text: $"😳 @{surveyUser?.BotUser?.UserName} yaxshimas lekin! \nRo'yxatdan chiqib ketdingiz 🙄"
+                        text: $"🤔 @{displayName} ro'yxatdan chiqdi.\n Yaxshimas lekin! ⛔️"
                     );
                 }
 
