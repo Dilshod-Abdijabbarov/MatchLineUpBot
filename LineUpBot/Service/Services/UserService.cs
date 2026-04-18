@@ -3,6 +3,7 @@ using LineUpBot.Domain.Enums;
 using LineUpBot.Domain.Models;
 using LineUpBot.Service.IServices;
 using Microsoft.EntityFrameworkCore;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace LineUpBot.Service.Services
@@ -11,9 +12,11 @@ namespace LineUpBot.Service.Services
     {
         private readonly Dictionary<long, UserState> _states = new();
         private readonly MatchLineUpDbContext _dbContext;
-        public UserService(MatchLineUpDbContext dbContext)
+        private readonly ITelegramBotClient _botClient;
+        public UserService(MatchLineUpDbContext dbContext, ITelegramBotClient botClient)
         {
             _dbContext = dbContext;
+            _botClient = botClient;
         }
 
         public void SetState(long userId, UserState state)
@@ -92,15 +95,23 @@ namespace LineUpBot.Service.Services
             return surveyUsers.Select(x=>x.BotUser).ToList();
         }
 
-        public async Task AddUserToSursey(int userId, int surveyId, bool isGoing)
+        public async Task AddUserToSursey(int userId, int surveyId, bool isGoing,string callbackId)
         {
-            var surveyUser = await _dbContext.SurveyBotUsers.FirstOrDefaultAsync(x =>
-                x.SurveyId == surveyId &&
-                x.BotUserId == userId
-            );
+            var surveyUser = await _dbContext.SurveyBotUsers
+                .Include(x=>x.BotUser)
+                .FirstOrDefaultAsync(x => x.SurveyId == surveyId && x.BotUserId == userId);
 
             if (surveyUser != null)
             {
+                if (surveyUser.Active && !isGoing)
+                {
+                    await _botClient.AnswerCallbackQuery(
+                        callbackQueryId: callbackId,
+                        text: $"@{surveyUser.BotUser.UserName} yaxshimas lekin!",
+                        showAlert: false
+                    );
+                }
+
                 surveyUser.Active = isGoing;
                 _dbContext.SurveyBotUsers.Update(surveyUser);
             }
