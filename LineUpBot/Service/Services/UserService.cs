@@ -99,7 +99,7 @@ namespace LineUpBot.Service.Services
         {
             var surveyUser = await _dbContext.SurveyBotUsers
                 .Include(x=>x.BotUser)
-                .FirstOrDefaultAsync(x => x.SurveyId == surveyId && x.BotUserId == callback.From.Id);
+                .FirstOrDefaultAsync(x => x.SurveyId == surveyId && x.BotUserId == userId);
 
             if (surveyUser != null)
             {
