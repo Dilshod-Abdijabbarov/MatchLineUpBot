@@ -103,11 +103,11 @@ namespace LineUpBot.Service.Services
 
             if (surveyUser != null)
             {
-                //if (surveyUser.Active && !isGoing)
+                if (surveyUser.Active && !isGoing)
                 {
                     await _botClient.AnswerCallbackQuery(
                         callbackQueryId: callbackId,
-                        text: $"@{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
+                        text: $"@{surveyUser?.BotUser?.UserName} yaxshimas lekin! 😳",
                         showAlert: false
                     );
                 }
