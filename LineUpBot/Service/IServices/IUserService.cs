@@ -12,7 +12,7 @@ namespace LineUpBot.Service.IServices
         Task<BotUser> CreateUserAsync(User tgUser,long groupId);
         Task<List<BotUser>> GetUsersBySurveyIdAsync(int surveyId);
         //Task<List<BotUser>> GetAllUsersAsync();
-        Task AddUserToSursey(int userId, int surveyId, bool isGoing,string calbackId);
+        Task AddUserToSursey(int userId, int surveyId, bool isGoing, CallbackQuery callback);
 
         Task<BotUser> GetByUserChatId(long chatId);
     }

@@ -298,7 +298,7 @@ namespace LineUpBot.Service.Services
 
                 var user = await _userService.GetByUserChatId(callback.From.Id);
 
-                await _userService.AddUserToSursey(user.Id, surveyId, isGoing,callback.Id);
+                await _userService.AddUserToSursey(user.Id, surveyId, isGoing, callback);
 
                 var users = await _userService.GetUsersBySurveyIdAsync(surveyId);
 

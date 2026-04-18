@@ -95,20 +95,19 @@ namespace LineUpBot.Service.Services
             return surveyUsers.Select(x=>x.BotUser).ToList();
         }
 
-        public async Task AddUserToSursey(int userId, int surveyId, bool isGoing,string callbackId)
+        public async Task AddUserToSursey(int userId, int surveyId, bool isGoing, CallbackQuery callback)
         {
             var surveyUser = await _dbContext.SurveyBotUsers
                 .Include(x=>x.BotUser)
-                .FirstOrDefaultAsync(x => x.SurveyId == surveyId && x.BotUserId == userId);
+                .FirstOrDefaultAsync(x => x.SurveyId == surveyId && x.BotUserId == callback.From.Id);
 
             if (surveyUser != null)
             {
                 if (surveyUser.Active && !isGoing)
                 {
-                    await _botClient.AnswerCallbackQuery(
-                        callbackQueryId: callbackId,
-                        text: $"😳  @{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
-                        showAlert: false
+                    await _botClient.SendMessage(
+                        chatId: callback.Message.Chat.Id, 
+                        text: $"😳 @{surveyUser?.BotUser?.UserName} yaxshimas lekin! \nRo'yxatdan chiqib ketdingizmi?"
                     );
                 }
 
@@ -123,6 +122,15 @@ namespace LineUpBot.Service.Services
                     SurveyId = surveyId,
                     Active = isGoing
                 });
+
+                if(!isGoing)
+                {
+                    await _botClient.AnswerCallbackQuery(
+                        callbackQueryId: callback.Id,
+                        text: $"😳  @{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
+                        showAlert: false
+                    );
+                }
             }
 
             await _dbContext.SaveChangesAsync();
