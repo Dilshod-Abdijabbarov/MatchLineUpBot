@@ -105,12 +105,14 @@ namespace LineUpBot.Service.Services
             {
                 if (surveyUser.Active && !isGoing)
                 {
+                    string firstName = surveyUser?.BotUser?.FirstName;
                     string userName = surveyUser?.BotUser?.UserName;
-                    string displayName = string.IsNullOrEmpty(userName)
-                        ? (surveyUser?.BotUser?.FirstName?.EndsWith("jon", StringComparison.OrdinalIgnoreCase) == true
-                            ? surveyUser.BotUser.FirstName
-                            : surveyUser?.BotUser?.FirstName + "jon")
-                        : "@" + userName;
+
+                    string displayName = !string.IsNullOrEmpty(firstName)
+                        ? (firstName.EndsWith("jon", StringComparison.OrdinalIgnoreCase)
+                            ? firstName
+                            : firstName + "jon")
+                        : (!string.IsNullOrEmpty(userName) ? "@" + userName : "");
 
                     await _botClient.SendMessage(
                         chatId: callback.Message.Chat.Id, 
