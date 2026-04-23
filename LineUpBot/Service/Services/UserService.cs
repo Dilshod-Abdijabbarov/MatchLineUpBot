@@ -116,7 +116,7 @@ namespace LineUpBot.Service.Services
 
                     await _botClient.SendMessage(
                         chatId: callback.Message.Chat.Id, 
-                        text: $"😕 Uyatmasmi {displayName}!\nBiz senga ishongandik.😔"
+                        text: $"Uyatmasmi {displayName}!\nBiz sizga ishongandik.😔"
                     );
                 }
 
