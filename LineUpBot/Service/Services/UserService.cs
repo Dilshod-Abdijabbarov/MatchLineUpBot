@@ -106,10 +106,15 @@ namespace LineUpBot.Service.Services
                 if (surveyUser.Active && !isGoing)
                 {
                     string userName = surveyUser?.BotUser?.UserName;
-                    string displayName = string.IsNullOrEmpty(userName) ? surveyUser?.BotUser?.FirstName : "@" + userName;
+                    string displayName = string.IsNullOrEmpty(userName)
+                        ? (surveyUser?.BotUser?.FirstName?.EndsWith("jon", StringComparison.OrdinalIgnoreCase) == true
+                            ? surveyUser.BotUser.FirstName
+                            : surveyUser?.BotUser?.FirstName + "jon")
+                        : "@" + userName;
+
                     await _botClient.SendMessage(
                         chatId: callback.Message.Chat.Id, 
-                        text: $"😳 {displayName} ro'yxatdan chiqdingiz.\n😕 Yaxshimas lekin!"
+                        text: $"😕 Uyatmasmi {displayName}!\nBiz senga ishongandik.😔"
                     );
                 }
 
@@ -125,14 +130,11 @@ namespace LineUpBot.Service.Services
                     Active = isGoing
                 });
 
-                if(!isGoing)
-                {
-                    await _botClient.AnswerCallbackQuery(
-                        callbackQueryId: callback.Id,
-                        text: $"😳  @{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
-                        showAlert: false
-                    );
-                }
+                await _botClient.AnswerCallbackQuery(
+                    callbackQueryId: callback.Id,
+                    text: $"😳  @{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
+                    showAlert: false
+                );              
             }
 
             await _dbContext.SaveChangesAsync();
