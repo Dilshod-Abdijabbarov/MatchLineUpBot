@@ -3,6 +3,7 @@ using LineUpBot.Domain.Enums;
 using LineUpBot.Domain.Models;
 using LineUpBot.Service.IServices;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -105,18 +106,12 @@ namespace LineUpBot.Service.Services
             {
                 if (surveyUser.Active && !isGoing)
                 {
-                    string firstName = surveyUser?.BotUser?.FirstName;
                     string userName = surveyUser?.BotUser?.UserName;
-
-                    string displayName = !string.IsNullOrEmpty(firstName)
-                        ? (firstName.EndsWith("jon", StringComparison.OrdinalIgnoreCase)
-                            ? firstName
-                            : firstName + "jon")
-                        : (!string.IsNullOrEmpty(userName) ? "@" + userName : "");
+                    string displayName = string.IsNullOrEmpty(userName) ? surveyUser?.BotUser?.FirstName : "@" + userName;
 
                     await _botClient.SendMessage(
-                        chatId: callback.Message.Chat.Id, 
-                        text: $"Uyatmasmi {displayName}?\nBiz sizga ishongandik.😔"
+                        chatId: callback.Message.Chat.Id,
+                        text: $"😳 {displayName} ro'yxatdan chiqdingiz.\n😕 Yaxshimas lekin!"
                     );
                 }
 
