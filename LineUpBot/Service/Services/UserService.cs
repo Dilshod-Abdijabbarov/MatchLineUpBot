@@ -127,17 +127,17 @@ namespace LineUpBot.Service.Services
                     Active = isGoing
                 });
 
-                await _botClient.AnswerCallbackQuery(
-                    callbackQueryId: callback.Id,
-                    text: $"😳  @{surveyUser?.BotUser?.UserName} yaxshimas lekin!",
-                    showAlert: false
-                );              
+                if(!isGoing)
+                {
+                    await _botClient.AnswerCallbackQuery(
+                        callbackQueryId: callback.Id,
+                        text: $"😒  @{surveyUser?.BotUser?.UserName} Eya uyalmaysizmi!",
+                        showAlert: false
+                    );
+                }           
             }
 
             await _dbContext.SaveChangesAsync();
         }
-
-
-
     }
 }
